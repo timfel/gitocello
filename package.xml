@@ -1,0 +1,9 @@
+<package>
+<!-- THIS FILE IS AUTO-GENERATED! EDITS _WILL_ BE LOST ON UPDATE!! --!>
+<name>Gitocello</name>
+<namespace>Gitocello</namespace>
+<filein>Core/GCGitWrapper.st</filein>
+<filein>Core/GCGstPackageWriter.st</filein>
+<filein>Core/GCMapper.st</filein>
+<filein>Core/GCRegistry.st</filein>
+</package>
