@@ -1,0 +1,48 @@
+# After a successful commit is made, we want 
+# to create a MCZ package for that
+#
+# Needed:
+# 	package	- (name 'Gitocello')
+# 	version - (name 'Gitocello-tfel.1' message 'first commit, got some exporting working' id 'ace18230-8fa6-4fa3-881f-65ba83d5898a' date '7 September 2009' time '4:34:33.698 am' author 'tfel' ancestors (<VERSION STRING DES ANCESTORS>) stepChildren ())
+# 	snapshot/source.st - ChangeSet + addCategory statements, e.g. "SystemOrganization addCategory: #'Gitocello-Core'!"
+
+folder=`pwd`
+packageName="${folder##*/}"
+lastMczVersion=$(echo "$(ls package-cache/${packageName}*)" | tr -d [:alpha:] | sort -nr | grep -m1 . | tr -cd [:digit:])
+lastMcz=`echo "$(ls package-cache/${packageName}*)" | grep -m1 .$lastMczVersion.mcz`
+dir="${packageName}-git.$[lastMczVersion + 1]"
+oldVersion=`unzip -p ${lastMcz} version`
+lastCommit=`git log -1 HEAD`
+commitAuthor=`echo "$lastCommit" | grep Author: | awk '{print $2}'`
+commitDate=`echo "$lastCommit" | grep Date: | awk '{print $3" "$4" "$6}'`
+commitTime=`echo "$lastCommit" | grep Date: | awk '{print $5}'`
+commitMsg=`echo "$lastCommit" | grep -A 100 Date: | grep -v Date:`
+commitId=`echo $lastCommit | awk '{print $2}'`
+commitId="${commitId:0:32}----"
+
+mkdir $dir
+cat > $dir/package <<EOS
+(name '$packageName')
+EOS
+cat > $dir/version <<EOS
+(name '$packageName' message '`echo $commitMsg`' id '$commitId' date '$commitDate' time '$commitTime' author '$commitAuthor' ancestors ($oldVersion) stepChildren ())
+EOS
+mkdir $dir/snapshot
+for i in *; do
+   if [ -n "$(ls $i | grep -P [A-Z].*.st)" ]; then
+      folders="$folders $i"
+   fi
+done
+for i in $folders; do
+   echo "SystemOrganization addCategory: #'${packageName}-${i}'!" >> $dir/snapshot/source.st
+done
+for i in $folders; do
+   for j in $folders/*.st; do
+      cat $j >> $dir/snapshot/source.st
+   done
+done
+cd $dir
+zip "${dir}.mcz" * snapshot/*
+mv "${dir}.mcz" ../package-cache
+cd ..
+rm -Rf "$dir"
