@@ -3,7 +3,11 @@
 <name>Gitocello</name>
 <namespace>Gitocello</namespace>
 <filein>Core/GCGitWrapper.st</filein>
+<file>Core/GCGitWrapper.st</file>
 <filein>Core/GCGstPackageWriter.st</filein>
+<file>Core/GCGstPackageWriter.st</file>
 <filein>Core/GCMapper.st</filein>
+<file>Core/GCMapper.st</file>
 <filein>Core/GCRegistry.st</filein>
-</package>
+<file>Core/GCRegistry.st</file>
+</package>>
