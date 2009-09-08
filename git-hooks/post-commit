@@ -6,10 +6,17 @@
 # 	version - (name 'Gitocello-tfel.1' message 'first commit, got some exporting working' id 'ace18230-8fa6-4fa3-881f-65ba83d5898a' date '7 September 2009' time '4:34:33.698 am' author 'tfel' ancestors (<VERSION STRING DES ANCESTORS>) stepChildren ())
 # 	snapshot/source.st - ChangeSet + addCategory statements, e.g. "SystemOrganization addCategory: #'Gitocello-Core'!"
 
+# Config
+packageCache=../../		# Where is the images package-cache?
+
+######### NO EDIT BELOW #########
 folder=`pwd`
+cd "$packageCache"
+packageCache=`pwd`
+cd "$folder"
 packageName="${folder##*/}"
-lastMczVersion=$(echo "$(ls package-cache/${packageName}*)" | tr -d [:alpha:] | sort -nr | grep -m1 . | tr -cd [:digit:])
-lastMcz=`echo "$(ls package-cache/${packageName}*)" | grep -m1 .$lastMczVersion.mcz`
+lastMczVersion=$(echo "$(ls ${packageCache}/${packageName}*)" | tr -d [:alpha:] | sort -nr | grep -m1 . | tr -cd [:digit:])
+lastMcz=`echo "$(ls ${packageCache}/${packageName}*)" | grep -m1 .$lastMczVersion.mcz`
 dir="${packageName}-git.$[lastMczVersion + 1]"
 oldVersion=`unzip -p ${lastMcz} version`
 lastCommit=`git log -1 HEAD`
@@ -43,6 +50,6 @@ for i in $folders; do
 done
 cd $dir
 zip "${dir}.mcz" * snapshot/*
-mv "${dir}.mcz" ../package-cache
+mv "${dir}.mcz" "$packageCache"/
 cd ..
 rm -Rf "$dir"
