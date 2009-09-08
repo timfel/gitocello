@@ -1,0 +1,25 @@
+=== What this is ===
+This is my simple attempt at an interoperability tool between Git
+and Monticello. It is specifically tailored at inter operating 
+between GNU Smalltalk and Squeak/Pharo (as those are the only 
+Smalltalks I know of which use one of these two version control 
+systems). However, I try to keep the code specific to either 
+Smalltalk fairly separate, so the code might be pretty easily 
+adaptable to other uses. I just didn't see any.
+
+==== The Squeak Code ====
+The project is "self-hosting" and has been almost right-away.
+The Squeak side consists of a Git wrapper, a Package-to-Filesystem
+mapper and a "Registry" class which keeps track of the settings 
+and Git-enabled packages in the system and is used as the command 
+interface for Gitocello. For GNU Smalltalk interoperability I have
+included a GstPackageWriter class that creates a 'package.xml' file
+from the Monticello package information.
+
+==== The GNU Smalltalk "Code" ====
+The GST side for now is only a post-receive hook written in bash
+that creates a new Monticello package from the last commit and
+only with the last commit message. This is mainly for simplicity,
+but also because the project is not meant to be used in both
+directions, but rather to support porting efforts and keeping ports
+up-to-date.
