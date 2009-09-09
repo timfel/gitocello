@@ -1,0 +1,76 @@
+# After a successful commit is made, we want
+# to create a MCZ package for that
+#
+# Creates:
+# 	*.mcz/
+# 	 | - package
+# 	 | - version
+# 	 | snapshot/
+# 	    | - source.st
+#
+# Configure the package-cache location (either full path or relative to git repository directory
+packageCache=../../
+
+######### NO EDIT BELOW THIS LINE #########
+
+# expand packageCache path
+folder=`pwd`
+cd "$packageCache"
+packageCache=`pwd`
+cd "$folder"
+
+# get packaging details
+packageName="${folder##*/}"
+lastMczVersion=$(echo "$(ls ${packageCache}/${packageName}*)" | tr -d [:alpha:] | sort -nr | grep -m1 . | tr -cd [:digit:])
+lastMcz=`echo "$(ls ${packageCache}/${packageName}*)" | grep -m1 .$lastMczVersion.mcz`
+oldVersion=`unzip -p ${lastMcz} version`
+lastCommit=`git log -1 HEAD`
+commitAuthor=`echo "$lastCommit" | grep Author: | awk '{print $2}'`
+commitDate=`echo "$lastCommit" | grep Date: | awk '{print $3" "$4" "$6}'`
+commitTime=`echo "$lastCommit" | grep Date: | awk '{print $5}'`
+commitMsg=`echo "$lastCommit" | grep -A 100 Date: | grep -v Date:`
+commitId=`echo $lastCommit | awk '{print $2}'`
+commitId="${commitId:0:32}----"
+
+# create temporary directory
+dir="${packageName}-${commitAuthor}-via-Git.$[lastMczVersion + 1]"
+mkdir $dir
+
+# create package and version file
+cat > $dir/package <<EOS
+(name '$packageName')
+EOS
+cat > $dir/version <<EOS
+(name '$packageName' message '`echo $commitMsg`' id '$commitId' date '$commitDate' time '$commitTime' author '$commitAuthor' ancestors ($oldVersion) stepChildren ())
+EOS
+
+# search for source files in the subdirectories
+mkdir $dir/snapshot
+for i in *; do
+   if [ -n "$(ls $i | grep -P [A-Z].*.st$)" ]; then
+      folders="$folders $i"
+   fi
+done
+# create categories as necessary 
+for i in $folders; do
+   echo "SystemOrganization addCategory: #'${packageName}-${i}'!" >> $dir/snapshot/source.st
+done
+# add the current dir if we have top level source-files
+if [ -n "$(ls | grep -P [A-Z].*.st$)" ]; then
+   echo "SystemOrganization addCategory: #'${packageName}'!" >> $dir/snapshot/source.st
+   folders="$folders ."
+fi
+# for all folders with source files, file-in those files
+for i in $folders; do
+   for j in $folders/*.st; do
+      cat $j >> $dir/snapshot/source.st
+   done
+done
+
+# Zip them up (Monticello is just Zip), put the pkg into the packageCache 
+# and remove the temporary directory
+cd $dir
+zip "${dir}.mcz" * snapshot/*
+mv "${dir}.mcz" "$packageCache"/
+cd ..
+rm -Rf "$dir"

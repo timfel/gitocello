@@ -23,3 +23,30 @@ only with the last commit message. This is mainly for simplicity,
 but also because the project is not meant to be used in both
 directions, but rather to support porting efforts and keeping ports
 up-to-date.
+
+=== Setup and Use
+The idea is (for now), that the remote Git repository is in a 
+subfolder "git-repositories" with its name. The "post-receive" 
+hook is installed and thus when a push happens, the according 
+Monticello package is created in the default Mcz location 
+(which would be ../../ from the repository root, this is 
+'configurable' in the hook).
+
+This remote repository has to be created by hand for now, and 
+the hook has to be enabled manually: I will automate this as soon 
+as I find the time. 
+
+For development in the Squeak image, one can use the GCRepository 
+interface like such:
+	GCRepository createRepositoryFor: 'PACKAGE'.
+and then during on-going development:
+	GCRepository commit: 'PACKAGE'.
+This will commit to a local repository, per default under 
+package-cache/git-repositories/PACKAGE. For now, you have 
+to manually add the origin and push to it from time to time.
+This will all be automated. You will also have to manually run 
+gst-convert for now: This, too, needs integration.
+
+Development from GNU Smalltalk is as good as impossible right now, as the
+gst-convert tool only converts TO the new syntax: I might have
+to write a 'squeak-convert' tool that converts FROM the new syntax.
