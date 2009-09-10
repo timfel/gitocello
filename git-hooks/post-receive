@@ -63,7 +63,9 @@ fi
 # for all folders with source files, file-in those files
 for i in $folders; do
    for j in $folders/*.st; do
-      cat $j >> $dir/snapshot/source.st
+      cat $j >> $dir/snapshot/source-gst.st
+      gst2squeak $dir/snapshot/source-gst.st $dir/snapshot/source.st
+      rm $dir/snapshot/source-gst.st
    done
 done
 
