@@ -1,8 +1,8 @@
 Object subclass: GCMapper [
-    | systemOrganizer packageName repoDir packageXml |
+    | systemOrganizer packageName repoDir files |
     
     <category: 'Gitocello-Core'>
-    <comment: 'I am used to file out a package to a repository. I do not care at all what kind of repository. ''repoDir'' and ''packageName'' are the only options that should be set on me.I just map packages and classes to files. Like so:The packages and classes		Package (Class1)		Package-Core (Class2)		Package-Base (Class3, Class4)become		Package/			|- Core/				|- Class2.st			|- Base/				|- Class3.st				|- Class4.st			|- Class1.st'>
+    <comment: 'I am used to file out a package to a repository. I do not care at all what kind of repository. ''repoDir'' and ''packageName'' are the only options that should be set on me.You can use my ''files'' field to find out which files I have filed out during my lifetime.I just map packages and classes to files. Like so:The packages and classes		Package (Class1)		Package-Core (Class2)		Package-Base (Class3, Class4)become		Package/			|- Core/				|- Class2.st			|- Base/				|- Class3.st				|- Class4.st			|- Class1.st'>
 
     GCMapper class >> newFor: aPackage [
 	<category: 'instance creation'>
@@ -90,6 +90,8 @@ Object subclass: GCMapper [
     ]
 
     writeSourceCodeFrom: aStream to: aFile [
+	"This writes the source code and adds to files"
+
 	<category: 'fileOut'>
 	| converter f fileName |
 	aStream contents isAsciiString 
@@ -105,7 +107,13 @@ Object subclass: GCMapper [
 	f text.
 	f converter: converter.
 	f nextPutAll: aStream contents.
-	f close
+	f close.
+	files add: fileName
+    ]
+
+    files [
+	<category: 'accessing'>
+	^files
     ]
 
     packageName [
@@ -137,6 +145,7 @@ Object subclass: GCMapper [
     initialize [
 	<category: 'initialize-release'>
 	super initialize.
+	files := Set new.
 	systemOrganizer := Smalltalk organization
     ]
 ]

@@ -2,7 +2,7 @@ Object subclass: GCRegistry [
     | git |
     
     <category: 'Gitocello-Core'>
-    <comment: 'In my class I keep all the information on where to create/find git repositories in the file system (RepositoryRoot) and which Repositories have been created and how far they are along compared to their Monticello history.My instance (of which there is only one) is used to create, remove and update repositories through the interface exposed in the ''commands'' category.'>
+    <comment: 'In my class I keep all the information on where to create/find git repositories in the file system (RepositoryRoot) and which Repositories have been created and how far they are along compared to their Monticello history.My instance (of which there is only one) is used to create, remove and update repositories through the interface exposed in the ''commands'' category.I am well aware of the conversion to Gnu Smalltalk going on here, and I call the appropriate classes to do the conversion.'>
 
     GCRegistry class [
 	| instance |
@@ -188,10 +188,15 @@ Object subclass: GCRegistry [
     ]
 
     createFilesFor: aPackage [
+	"Create and convert source to Gnu Smalltalk syntax. Als create a package.xml"
+
 	<category: 'fileOut'>
-	(GCMapper newFor: aPackage)
-	    repoDir: RepositoryRoot / aPackage;
-	    fileOutPackage.
+	| files |
+	files := (GCMapper newFor: aPackage)
+		    repoDir: RepositoryRoot / aPackage;
+		    fileOutPackage;
+		    files.
+	files do: [:file | GCGstConvertCommand convert: file].
 	(GCGstPackageWriter newFor: aPackage)
 	    repoDir: RepositoryRoot / aPackage;
 	    fileOutPackageXml
