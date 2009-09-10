@@ -1,1 +1,6 @@
-Object subclass: #GCSqueakToGstCommand	instanceVariableNames: ''	classVariableNames: ''	poolDictionaries: ''	category: 'Gitocello-GST'!
+Object subclass: GCSqueakToGstCommand [
+    
+    <category: 'Gitocello-GST'>
+    <comment: nil>
+]
+

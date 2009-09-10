@@ -1,1 +1,143 @@
-Object subclass: #GCMapper	instanceVariableNames: 'systemOrganizer packageName repoDir packageXml'	classVariableNames: ''	poolDictionaries: ''	category: 'Gitocello-Core'!!GCMapper commentStamp: 'tfel 9/8/2009 20:29' prior: 0!I am used to file out a package to a repository. I do not care at all what kind of repository. 'repoDir' and 'packageName' are the only options that should be set on me.I just map packages and classes to files. Like so:The packages and classes		Package (Class1)		Package-Core (Class2)		Package-Base (Class3, Class4)become		Package/			|- Core/				|- Class2.st			|- Base/				|- Class3.st				|- Class4.st			|- Class1.st!!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/7/2009 20:27'!createFolder: aSubfolder	(repoDir directoryExists: aSubfolder)		ifFalse: [repoDir createDirectory: aSubfolder]! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/7/2009 20:26'!createSubfolder: aFolder	(repoDir directoryExists: aFolder)		ifFalse: [repoDir createDirectory: aFolder]! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/7/2009 20:26'!fileOutCategory: aCategory	"This creates a sub-folder in the repository for the categories classes"	| subfolder |	subfolder := (aCategory asString findBetweenSubStrs: '-') last.	self createFolder: subfolder.	(systemOrganizer superclassOrder: aCategory) do: [:each | 		self 			fileOutClass: each 			in: (repoDir directoryNamed: subfolder) pathName]! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/7/2009 20:26'!fileOutClass: aClass in: aPath	"This files out the class in the according sub-folder"	| stream path |	stream := WriteStream on: (String new: 100).	aClass fileOutOn: stream moveSource: false toFile: 0.	path := (aPath, FileDirectory pathNameDelimiter asString, aClass name).	self writeSourceCodeFrom: stream to: path! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/10/2009 10:28'!fileOutExtensions: extensionMethods	"For each extended class collect the extension Methods and file them out"	| dict |	self createFolder: 'Extensions'.	dict := Dictionary new.	extensionMethods do: [:each | 		dict at: each classSymbol ifAbsentPut: OrderedCollection new.		(dict at: each classSymbol) add: each methodSymbol].	dict keysDo: [:key || stream file |		stream := WriteStream on: (String new: 1000).		file := (repoDir directoryNamed: 'Extensions') pathName, 				FileDirectory pathNameDelimiter asString, 				key asString.		(dict at: key) do: [:method |			(Smalltalk classNamed: key) 				printMethodChunk: method withPreamble: true				on: stream moveSource: false toFile: 0].		self writeSourceCodeFrom: stream to: file]! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/10/2009 09:59'!fileOutPackage	"Files out the entire package into a folder structure"	| packageInfo |	packageInfo := PackageInfo named: self packageName.	packageInfo systemCategories do: [:category | self fileOutCategory: category].	packageInfo extensionMethods 		ifNotEmpty: [self fileOutExtensions: packageInfo extensionMethods].	! !!GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/7/2009 09:53'!writeSourceCodeFrom: aStream to: aFile	| converter f fileName |	aStream contents isAsciiString 		ifTrue: [converter := MacRomanTextConverter new]		ifFalse: [converter := UTF8TextConverter new].	fileName := aFile, (FileDirectory dot, FileStream st).	f := MultiByteFileStream new open: fileName forWrite: true.	f ifNil: [^ self error: 'Cannot open file'].	(converter isMemberOf: UTF8TextConverter)		ifTrue: [f binary.			UTF8TextConverter writeBOMOn: f].	f text.	f converter: converter.	f nextPutAll: aStream contents.	f close.! !!GCMapper methodsFor: 'accessing' stamp: 'tfel 9/6/2009 20:33'!packageName	"Answer the value of packageName"	^ packageName! !!GCMapper methodsFor: 'accessing' stamp: 'tfel 9/6/2009 20:33'!packageName: anObject	"Set the value of packageName"	packageName := anObject! !!GCMapper methodsFor: 'accessing' stamp: 'tfel 9/7/2009 02:29'!repoDir	^ repoDir! !!GCMapper methodsFor: 'accessing' stamp: 'tfel 9/7/2009 20:24'!repoDir: aFileDirectory	aFileDirectory exists		ifFalse: [aFileDirectory containingDirectory 			createDirectory: self packageName].	repoDir := aFileDirectory! !!GCMapper methodsFor: 'initialize-release' stamp: 'tfel 9/7/2009 21:15'!initialize	super initialize.	systemOrganizer := Smalltalk organization! !"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!GCMapper class	instanceVariableNames: ''!!GCMapper class methodsFor: 'instance creation' stamp: 'tfel 9/6/2009 20:49'!newFor: aPackage	^ self basicNew		packageName: aPackage;		initialize;		yourself! !
+Object subclass: GCMapper [
+    | systemOrganizer packageName repoDir packageXml |
+    
+    <category: 'Gitocello-Core'>
+    <comment: 'I am used to file out a package to a repository. I do not care at all what kind of repository. ''repoDir'' and ''packageName'' are the only options that should be set on me.I just map packages and classes to files. Like so:The packages and classes		Package (Class1)		Package-Core (Class2)		Package-Base (Class3, Class4)become		Package/			|- Core/				|- Class2.st			|- Base/				|- Class3.st				|- Class4.st			|- Class1.st'>
+
+    GCMapper class >> newFor: aPackage [
+	<category: 'instance creation'>
+	^(self basicNew)
+	    packageName: aPackage;
+	    initialize;
+	    yourself
+    ]
+
+    createFolder: aSubfolder [
+	<category: 'fileOut'>
+	(repoDir directoryExists: aSubfolder) 
+	    ifFalse: [repoDir createDirectory: aSubfolder]
+    ]
+
+    createSubfolder: aFolder [
+	<category: 'fileOut'>
+	(repoDir directoryExists: aFolder) 
+	    ifFalse: [repoDir createDirectory: aFolder]
+    ]
+
+    fileOutCategory: aCategory [
+	"This creates a sub-folder in the repository for the categories classes"
+
+	<category: 'fileOut'>
+	| subfolder |
+	subfolder := (aCategory asString findBetweenSubStrs: '-') last.
+	self createFolder: subfolder.
+	(systemOrganizer superclassOrder: aCategory) 
+	    do: [:each | self fileOutClass: each in: (repoDir / subfolder) pathName]
+    ]
+
+    fileOutClass: aClass in: aPath [
+	"This files out the class in the according sub-folder"
+
+	<category: 'fileOut'>
+	| stream path |
+	stream := WriteStream on: (String new: 100).
+	aClass 
+	    fileOutOn: stream
+	    moveSource: false
+	    toFile: 0.
+	path := aPath , FileDirectory pathNameDelimiter asString , aClass name.
+	self writeSourceCodeFrom: stream to: path
+    ]
+
+    fileOutExtensions: extensionMethods [
+	"For each extended class collect the extension Methods and file them out"
+
+	<category: 'fileOut'>
+	| dict |
+	self createFolder: 'Extensions'.
+	dict := Dictionary new.
+	extensionMethods do: 
+		[:each | 
+		dict at: each classSymbol ifAbsentPut: OrderedCollection new.
+		(dict at: each classSymbol) add: each methodSymbol].
+	dict keysDo: 
+		[:key | 
+		| stream file |
+		stream := WriteStream on: (String new: 1000).
+		file := (repoDir / 'Extensions') pathName 
+			    , FileDirectory pathNameDelimiter asString , key asString.
+		(dict at: key) do: 
+			[:method | 
+			(Smalltalk classNamed: key) 
+			    printMethodChunk: method
+			    withPreamble: true
+			    on: stream
+			    moveSource: false
+			    toFile: 0].
+		self writeSourceCodeFrom: stream to: file]
+    ]
+
+    fileOutPackage [
+	"Files out the entire package into a folder structure"
+
+	<category: 'fileOut'>
+	| packageInfo |
+	packageInfo := PackageInfo named: self packageName.
+	packageInfo systemCategories 
+	    do: [:category | self fileOutCategory: category].
+	packageInfo extensionMethods 
+	    ifNotEmpty: [self fileOutExtensions: packageInfo extensionMethods]
+    ]
+
+    writeSourceCodeFrom: aStream to: aFile [
+	<category: 'fileOut'>
+	| converter f fileName |
+	aStream contents isAsciiString 
+	    ifTrue: [converter := MacRomanTextConverter new]
+	    ifFalse: [converter := UTF8TextConverter new].
+	fileName := aFile , (FileDirectory dot , FileStream st).
+	f := MultiByteFileStream new open: fileName forWrite: true.
+	f ifNil: [^self error: 'Cannot open file'].
+	(converter isMemberOf: UTF8TextConverter) 
+	    ifTrue: 
+		[f binary.
+		UTF8TextConverter writeBOMOn: f].
+	f text.
+	f converter: converter.
+	f nextPutAll: aStream contents.
+	f close
+    ]
+
+    packageName [
+	"Answer the value of packageName"
+
+	<category: 'accessing'>
+	^packageName
+    ]
+
+    packageName: anObject [
+	"Set the value of packageName"
+
+	<category: 'accessing'>
+	packageName := anObject
+    ]
+
+    repoDir [
+	<category: 'accessing'>
+	^repoDir
+    ]
+
+    repoDir: aFileDirectory [
+	<category: 'accessing'>
+	aFileDirectory exists 
+	    ifFalse: [aFileDirectory parent createDirectory: self packageName].
+	repoDir := aFileDirectory
+    ]
+
+    initialize [
+	<category: 'initialize-release'>
+	super initialize.
+	systemOrganizer := Smalltalk organization
+    ]
+]
+

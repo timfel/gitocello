@@ -1,1 +1,71 @@
-Object subclass: #GCGitWrapper	instanceVariableNames: 'localPath'	classVariableNames: ''	poolDictionaries: ''	category: 'Gitocello-Core'!!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/8/2009 20:00'!add	"Just add all"	self gitCommand: 'add .'! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/8/2009 20:00'!add: matchString	"Add using matchString"	self gitCommand: 'add ', matchString! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/8/2009 20:00'!commit: commitMsg	"Commit changes to the local repository"	self gitCommand: 'commit -m "',  commitMsg, '"'! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/7/2009 04:23'!gitCommand: aCommandString	"Enter the local repository and run the 'git' command with the parameters"	OSProcess waitForCommand: 'cd ', self localPath, '; git ', aCommandString! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/7/2009 01:03'!init	self gitCommand: 'init'! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/7/2009 03:29'!origin: aRemoteUrl	self gitCommand: 'remote rm origin'.	self gitCommand: 'remote add origin ', aRemoteUrl! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/6/2009 18:31'!pull		self gitCommand: 'pull origin master'! !!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/6/2009 18:30'!push	self gitCommand: 'push origin master'! !!GCGitWrapper methodsFor: 'accessing' stamp: 'tfel 9/6/2009 23:10'!localPath	"Answer the value of localPath"	^ localPath! !!GCGitWrapper methodsFor: 'accessing' stamp: 'tfel 9/6/2009 23:10'!localPath: anObject	"Set the value of localPath"	localPath := anObject! !ocalPath: anObject	"Set the value of localPath"	localPath := anObject! !
+Object subclass: GCGitWrapper [
+    | localPath |
+    
+    <category: 'Gitocello-Core'>
+    <comment: nil>
+
+    add [
+	"Just add all"
+
+	<category: 'commands'>
+	self gitCommand: 'add .'
+    ]
+
+    add: matchString [
+	"Add using matchString"
+
+	<category: 'commands'>
+	self gitCommand: 'add ' , matchString
+    ]
+
+    commit: commitMsg [
+	"Commit changes to the local repository"
+
+	<category: 'commands'>
+	self gitCommand: 'commit -m "' , commitMsg , '"'
+    ]
+
+    gitCommand: aCommandString [
+	"Enter the local repository and run the 'git' command with the parameters"
+
+	<category: 'commands'>
+	OSProcess 
+	    waitForCommand: 'cd ' , self localPath , '; git ' , aCommandString
+    ]
+
+    init [
+	<category: 'commands'>
+	self gitCommand: 'init'
+    ]
+
+    origin: aRemoteUrl [
+	<category: 'commands'>
+	self gitCommand: 'remote rm origin'.
+	self gitCommand: 'remote add origin ' , aRemoteUrl
+    ]
+
+    pull [
+	<category: 'commands'>
+	self gitCommand: 'pull origin master'
+    ]
+
+    push [
+	<category: 'commands'>
+	self gitCommand: 'push origin master'
+    ]
+
+    localPath [
+	"Answer the value of localPath"
+
+	<category: 'accessing'>
+	^localPath
+    ]
+
+    localPath: anObject [
+	"Set the value of localPath"
+
+	<category: 'accessing'>
+	localPath := anObject
+    ]
+]
+
