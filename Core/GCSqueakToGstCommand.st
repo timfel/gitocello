@@ -1,0 +1,1 @@
+Object subclass: #GCSqueakToGstCommand	instanceVariableNames: ''	classVariableNames: ''	poolDictionaries: ''	category: 'Gitocello-Core'!

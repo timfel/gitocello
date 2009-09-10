@@ -10,4 +10,6 @@
 <file>Core/GCMapper.st</file>
 <filein>Core/GCRegistry.st</filein>
 <file>Core/GCRegistry.st</file>
-</package>>
+<filein>Core/GCSqueakToGstCommand.st</filein>
+<file>Core/GCSqueakToGstCommand.st</file>
+</package>
