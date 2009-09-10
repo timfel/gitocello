@@ -11,55 +11,77 @@ Object subclass: GCGstPackageWriter [
 	    yourself
     ]
 
-    classes [
-	<category: 'information-retrieval'>
-	| system |
-	system := Smalltalk organization.
-	^((system categoriesMatching: self packageName) 
-	    union: (system categoriesMatching: self packageName , '-*')) 
-		inject: OrderedCollection new
-		into: [:list :next | list addAll: (system superclassOrder: next)]
-    ]
-
     requiredPackages [
 	<category: 'information-retrieval'>
 	^(MCPackage named: self packageName) workingCopy requiredPackages
     ]
 
+    classFilePathFor: aClass [
+	"Find the path to the classes fileOut"
+
+	<category: 'stream-writing'>
+	| subfolder |
+	subfolder := (aClass category asString findBetweenSubStrs: '-') last.
+	^subfolder , FileDirectory pathNameDelimiter asString 
+	    , aClass name asString , FileDirectory dot 
+	    , FileStream st
+    ]
+
+    classes [
+	<category: 'stream-writing'>
+	| packageInfo |
+	packageInfo := PackageInfo named: self packageName.
+	^packageInfo classes union: packageInfo extensionClasses
+    ]
+
     createPackageXml [
 	<category: 'stream-writing'>
-	(self packageXmlStream)
-	    reset;
-	    nextPutAll: self preamble.
-	self requiredPackages do: [:pkg | self require: pkg].
-	"self testing."
-	self classes do: [:class | self fileIn: class].
+	self packageXmlStream reset.
+	self
+	    preamble;
+	    requires;
+	    tests;
+	    fileIns;
+	    files.
 	self packageXmlStream nextPutAll: self postfix
     ]
 
     fileIn: aClass [
-	"Create the filein for this particular class in the conventional subfolder"
-
 	<category: 'stream-writing'>
-	| subfolder filepath |
-	subfolder := (aClass category asString findBetweenSubStrs: '-') last.
-	filepath := subfolder , FileDirectory pathNameDelimiter asString 
-		    , aClass name asString , '.st'.
+	self putAttribute: 'filein' with: (self classFilePathFor: aClass)
+    ]
+
+    fileIns [
+	<category: 'stream-writing'>
+	self classes reject: [:class | class allSuperclasses includes: TestCase]
+	    thenDo: [:class | self fileIn: class]
+    ]
+
+    files [
+	<category: 'stream-writing'>
+	self classes 
+	    do: [:class | self putAttribute: 'file' with: (self classFilePathFor: class)]
+    ]
+
+    preamble [
+	<category: 'stream-writing'>
+	
+	{'<package>'.
+	'<!-- THIS FILE IS GENERATED! EDITS _WILL_ BE LOST ON UPDATE! -->'.
+	''} 
+		do: [:s | self packageXmlStream nextPutAll: s]
+		separatedBy: [self packageXmlStream nextPut: newline].
 	self
-	    putAttribute: 'filein' with: filepath;
-	    putAttribute: 'file' with: filepath
+	    putAttribute: 'name' with: self packageName;
+	    putAttribute: 'namespace' with: self packageName
     ]
 
     putAttribute: anXmlAttribute with: someContent [
 	<category: 'stream-writing'>
 	(self packageXmlStream)
-	    nextPut: $<;
-	    nextPutAll: anXmlAttribute;
-	    nextPut: $>;
+	    nextPutAll: '<' , anXmlAttribute , '>';
 	    nextPutAll: someContent;
-	    nextPutAll: '</';
-	    nextPutAll: anXmlAttribute;
-	    nextPut: $>;
+	    nextPutAll: '</' , anXmlAttribute , '>';
 	    nextPut: newline
     ]
 
@@ -70,6 +92,28 @@ Object subclass: GCGstPackageWriter [
 	    nextPutAll: aPackage;
 	    nextPutAll: '</prereq>';
 	    nextPut: newline
+    ]
+
+    requires [
+	<category: 'stream-writing'>
+	self requiredPackages do: [:pkg | self require: pkg]
+    ]
+
+    tests [
+	"Prepare the tests for usage with Gnu Smalltalk"
+
+	<category: 'stream-writing'>
+	| testClasses testCases |
+	testClasses := self classes 
+		    select: [:class | class allSuperclasses includes: TestCase].
+	testCases := testClasses inject: String new
+		    into: 
+			[:s :class | 
+			s := s , self packageName , '.' , class name asString , newline asString].
+	self packageXmlStream nextPutAll: '<test>' , newline asString.
+	testClasses do: [:class | self fileIn: class].
+	self putAttribute: 'sunit' with: testCases.
+	self packageXmlStream nextPutAll: '</test>' , newline asString
     ]
 
     fileOutPackageXml [
@@ -158,17 +202,6 @@ Object subclass: GCGstPackageWriter [
     postfix [
 	<category: 'literals'>
 	^'</package>'
-    ]
-
-    preamble [
-	<category: 'literals'>
-	^'<package>' , newline asString 
-	    , '<!-- THIS FILE IS AUTO-GENERATED! EDITS _WILL_ BE LOST ON UPDATE!! --!>' 
-		, newline asString , '<name>' 
-	    , self packageName , '</name>' 
-	    , newline asString , '<namespace>' 
-	    , self packageName , '</namespace>' 
-	    , newline asString
     ]
 ]
 

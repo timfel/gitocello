@@ -1,16 +1,20 @@
 <package>
-<!-- THIS FILE IS AUTO-GENERATED! EDITS _WILL_ BE LOST ON UPDATE!! --!>
+<!-- THIS FILE IS GENERATED! EDITS _WILL_ BE LOST ON UPDATE! -->
 <name>Gitocello</name>
 <namespace>Gitocello</namespace>
+<test>
+<sunit></sunit>
+</test>
+<filein>GST/GCGstPackageWriter.st</filein>
+<filein>UI/MCWorkingCopyBrowser.st</filein>
+<filein>Core/GCMapper.st</filein>
+<filein>GST/GCGstConvertCommand.st</filein>
+<filein>Core/GCRegistry.st</filein>
 <filein>Core/GCGitWrapper.st</filein>
 <file>Core/GCGitWrapper.st</file>
-<filein>Core/GCMapper.st</filein>
 <file>Core/GCMapper.st</file>
-<filein>Core/GCRegistry.st</filein>
+<file>UI/MCWorkingCopyBrowser.st</file>
 <file>Core/GCRegistry.st</file>
-</package>file>
-<filein>Core/GCRegistry.st</filein>
-<file>Core/GCRegistry.st</file>
-<filein>Core/GCSqueakToGstCommand.st</filein>
-<file>Core/GCSqueakToGstCommand.st</file>
-</package>
+<file>GST/GCGstConvertCommand.st</file>
+<file>GST/GCGstPackageWriter.st</file>
+</package>ckage>
