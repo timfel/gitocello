@@ -36,17 +36,14 @@ This remote repository has to be created by hand for now, and
 the hook has to be enabled manually: I will automate this as soon 
 as I find the time. 
 
-For development in the Squeak image, one can use the GCRepository 
-interface like such:
-	GCRepository createRepositoryFor: 'PACKAGE'.
-and then during on-going development:
-	GCRepository commit: 'PACKAGE'.
-This will commit to a local repository, per default under 
-package-cache/git-repositories/PACKAGE. For now, you have 
-to manually add the origin and push to it from time to time.
-This will all be automated. You will also have to manually run 
-gst-convert for now: This, too, needs integration.
+For development in the Squeak image, one can yellow-click the package
+in the Monticello browser and check "track with Git" to commit to the
+default Git repository with each Monticello commit (per default under
+package-cache/git-repositories/PACKAGE). For now, you have to 
+manually add the origin and push to it from time to time. This will 
+all be automated. Automatic conversion to Gnu Smalltalk syntax is 
+already in place, however.
 
 Development from GNU Smalltalk is as good as impossible right now, as the
-gst-convert tool only converts TO the new syntax: I might have
-to write a 'squeak-convert' tool that converts FROM the new syntax.
+gst-convert tool only converts TO the new syntax: Paolo Bonzini tells me 
+a reverse tool is available in Git, I will have to integrate that.
