@@ -30,8 +30,8 @@ become
 
     createFolder: aSubfolder [
 	<category: 'fileOut'>
-	(repoDir directoryExists: aSubfolder) 
-	    ifFalse: [repoDir createDirectory: aSubfolder]
+	(File path: aSubfolder) exists 
+	    ifFalse: [(File path: aSubfolder) createDirectory]
     ]
 
     fileOutCategory: aCategory [
@@ -42,7 +42,7 @@ become
 	subfolder := (aCategory asString findBetweenSubStrs: '-') last.
 	self createFolder: subfolder.
 	(systemOrganizer superclassOrder: aCategory) 
-	    do: [:each | self fileOutClass: each in: (repoDir directoryNamed: subfolder) pathName]
+	    do: [:each | self fileOutClass: each in: (repoDir / subfolder) name]
     ]
 
     fileOutClass: aClass in: aPath [
@@ -55,7 +55,7 @@ become
 	    fileOutOn: stream
 	    moveSource: false
 	    toFile: 0.
-	path := aPath , FileDirectory pathNameDelimiter asString , aClass name.
+	path := aPath , Directory pathSeparator asString , aClass name.
 	self writeSourceCodeFrom: stream to: path
     ]
 
@@ -74,8 +74,8 @@ become
 		[:key | 
 		| stream file |
 		stream := WriteStream on: (String new: 1000).
-		file := (repoDir directoryNamed: 'Extensions') pathName 
-			    , FileDirectory pathNameDelimiter asString , key asString.
+		file := (repoDir / 'Extensions') name , Directory pathSeparator asString 
+			    , key asString.
 		(dict at: key) do: 
 			[:method | 
 			(Smalltalk classNamed: key) 
@@ -107,7 +107,7 @@ become
 	aStream contents isAsciiString 
 	    ifTrue: [converter := MacRomanTextConverter new]
 	    ifFalse: [converter := UTF8TextConverter new].
-	fileName := aFile , (FileDirectory dot , FileStream st).
+	fileName := aFile , ($. asString , ($s asString , $t asString)).
 	f := MultiByteFileStream new open: fileName forWrite: true.
 	f ifNil: [^self error: 'Cannot open file'].
 	(converter isMemberOf: UTF8TextConverter) 
@@ -147,7 +147,7 @@ become
 
     repoDir: aFileDirectory [
 	<category: 'accessing'>
-	aFileDirectory assureExistence.
+	aFileDirectory createDirectories.
 	repoDir := aFileDirectory
     ]
 

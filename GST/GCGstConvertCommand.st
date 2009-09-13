@@ -46,7 +46,7 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object allSubinstancesDo: ``@arg2)'.
 	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'.
 	'(``@object allMethodsInCategory: ``@arg1)' 
-	    -> '(``@object class methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector] asArray'}
+	    -> '((``@object class methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector] asArray)'}
     ]
 
     GCGstConvertCommand class >> statements [
@@ -62,19 +62,21 @@ Object subclass: GCGstConvertCommand [
 
     GCGstConvertCommand class >> gstBidirectional [
 	<category: 'gst-to-squeak-rules'>
-	^(self class allMethodsInCategory: 'bidirectional-rules') 
-	    inject: OrderedCollection new
-	    into: 
-		[:list :method | 
-		list 
-		    union: ((self perform: method) collect: [:each | each value -> each key])]
+	^((self class class methodDictionary asSet 
+	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
+		collect: [:each | each selector] asArray) inject: OrderedCollection new
+		into: 
+		    [:list :method | 
+		    list 
+			union: ((self perform: method) collect: [:each | each value -> each key])]
     ]
 
     GCGstConvertCommand class >> squeakBidirectional [
 	<category: 'squeak-to-gst-rules'>
-	^(self class allMethodsInCategory: 'bidirectional-rules') 
-	    inject: OrderedCollection new
-	    into: [:list :method | list union: (self perform: method)]
+	^((self class class methodDictionary asSet 
+	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
+		collect: [:each | each selector] asArray) inject: OrderedCollection new
+		into: [:list :method | list union: (self perform: method)]
     ]
 
     GCGstConvertCommand class >> squeakClassNames [
@@ -116,10 +118,13 @@ Object subclass: GCGstConvertCommand [
 		    commandLineFor: aFilepath
 		    from: input
 		    to: output).
-	filename := FileDirectory localNameFor: aFilepath.
-	FileDirectory deleteFilePath: aFilepath.
-	(FileDirectory forFileName: aFilepath) rename: filename , '.converted'
-	    toBe: filename
+	filename := FilePath stripPathFrom: aFilepath.
+	File remove: aFilepath.
+	File 
+	    rename: (File path: (FilePath pathFor: aFilepath)) name 
+		    , Directory pathSeparatorString , (filename , '.converted')
+	    to: (File path: (FilePath pathFor: aFilepath)) name 
+		    , Directory pathSeparatorString , filename
     ]
 
     GCGstConvertCommand class >> commandLineFor: aFilepath from: input to: output [
@@ -129,8 +134,10 @@ Object subclass: GCGstConvertCommand [
 	| stream |
 	stream := WriteStream on: (String new: 1000).
 	stream nextPutAll: 'gst-convert -f ' , input , ' -F ' , output , ' '.
-	(self allMethodsInCategory: input , '-to-' , output , '-rules') 
-	    do: [:method | self writeRules: (self perform: method) to: stream].
+	((self class class methodDictionary asSet 
+	    select: [:msg | msg methodCategory = (((input , '-to-') , output) , '-rules')]) 
+		collect: [:each | each selector] asArray) 
+		do: [:method | self writeRules: (self perform: method) to: stream].
 	self 
 	    flip: (self perform: (input , 'Newline') asSymbol)
 	    with: (self perform: (output , 'Newline') asSymbol)
