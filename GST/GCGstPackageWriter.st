@@ -25,14 +25,16 @@ I will at some stage be able to properly handle test cases, which will make port
 	| subfolder |
 	subfolder := (aClass category asString findBetweenSubStrs: '-') last.
 	^subfolder , Directory pathSeparator asString , aClass name asString 
-	    , $. asString , ($s asString , $t asString)
+	    , $. printString , ($s printString , $t printString)
     ]
 
     classes [
 	<category: 'stream-writing'>
 	| packageInfo |
 	packageInfo := PackageInfo named: self packageName.
-	^(packageInfo classes copy addAll: packageInfo extensionClasses) asSet
+	^(packageInfo classes asSet)
+	    addAll: packageInfo extensionClasses;
+	    yourself
     ]
 
     createPackageXml [
