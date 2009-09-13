@@ -46,7 +46,7 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object allSubinstancesDo: ``@arg2)'.
 	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'.
 	'(``@object allMethodsInCategory: ``@arg1)' 
-	    -> '((``@object class methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector] asArray)'}
+	    -> '((``@object class methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector]) asArray'}
     ]
 
     GCGstConvertCommand class >> statements [
@@ -64,19 +64,21 @@ Object subclass: GCGstConvertCommand [
 	<category: 'gst-to-squeak-rules'>
 	^((self class class methodDictionary asSet 
 	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
-		collect: [:each | each selector] asArray) inject: OrderedCollection new
-		into: 
-		    [:list :method | 
-		    list 
-			union: ((self perform: method) collect: [:each | each value -> each key])]
+		collect: [:each | each selector]) asArray 
+	    inject: OrderedCollection new
+	    into: 
+		[:list :method | 
+		list 
+		    union: ((self perform: method) collect: [:each | each value -> each key])]
     ]
 
     GCGstConvertCommand class >> squeakBidirectional [
 	<category: 'squeak-to-gst-rules'>
 	^((self class class methodDictionary asSet 
 	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
-		collect: [:each | each selector] asArray) inject: OrderedCollection new
-		into: [:list :method | list union: (self perform: method)]
+		collect: [:each | each selector]) asArray 
+	    inject: OrderedCollection new
+	    into: [:list :method | list union: (self perform: method)]
     ]
 
     GCGstConvertCommand class >> squeakClassNames [
@@ -136,8 +138,8 @@ Object subclass: GCGstConvertCommand [
 	stream nextPutAll: 'gst-convert -f ' , input , ' -F ' , output , ' '.
 	((self class class methodDictionary asSet 
 	    select: [:msg | msg methodCategory = (((input , '-to-') , output) , '-rules')]) 
-		collect: [:each | each selector] asArray) 
-		do: [:method | self writeRules: (self perform: method) to: stream].
+		collect: [:each | each selector]) asArray 
+	    do: [:method | self writeRules: (self perform: method) to: stream].
 	self 
 	    flip: (self perform: (input , 'Newline') asSymbol)
 	    with: (self perform: (output , 'Newline') asSymbol)
