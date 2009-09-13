@@ -6,7 +6,7 @@ MCWorkingCopyBrowser extend [
 	self canSave ifFalse: [^self].
 	self checkForNewerVersions ifFalse: [^self].
 	repo := self repository.
-	workingCopy newVersion ifNotNil: 
+	workingCopy newVersion ifNotNilDo: 
 		[:v | 
 		(MCVersionInspector new version: v) show.
 		Cursor wait showWhile: [repo storeVersion: v].

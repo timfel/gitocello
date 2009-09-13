@@ -24,8 +24,9 @@ I will at some stage be able to properly handle test cases, which will make port
 	<category: 'stream-writing'>
 	| subfolder |
 	subfolder := (aClass category asString findBetweenSubStrs: '-') last.
-	^subfolder , Directory pathSeparator asString , aClass name asString 
-	    , $. asString , ($s asString , $t asString)
+	^subfolder , FileDirectory pathNameDelimiter asString 
+	    , aClass name asString , FileDirectory dot 
+	    , FileStream st
     ]
 
     classes [
@@ -124,7 +125,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	self packageXmlStream contents isAsciiString 
 	    ifTrue: [converter := MacRomanTextConverter new]
 	    ifFalse: [converter := UTF8TextConverter new].
-	fileName := self repoDir , Directory pathSeparator asString 
+	fileName := self repoDir , FileDirectory pathNameDelimiter asString 
 		    , 'package.xml'.
 	file := MultiByteFileStream new open: fileName forWrite: true.
 	file ifNil: [self error: 'Cannot open file'].
@@ -197,7 +198,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	<category: 'accessing'>
 	aDirectory isString 
 	    ifTrue: [repoDir := aDirectory]
-	    ifFalse: [repoDir := aDirectory name]
+	    ifFalse: [repoDir := aDirectory pathName]
     ]
 
     postfix [

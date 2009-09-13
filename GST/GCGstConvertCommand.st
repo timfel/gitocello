@@ -19,7 +19,6 @@ Object subclass: GCGstConvertCommand [
 	^
 	{'Date current' -> 'Date today'.
 	'TimeStamp current' -> 'DateTime now'.
-	'FileStream st' -> '($s asString, $t asString)'.
 	'FileDirectory pathNameDelimiter' -> 'Directory pathSeparator'.
 	'FileDirectory default' -> 'Directory working'.
 	'(FileDirectory deleteFilePath: ``@arg2)' -> '(File remove: ``@arg2)'.
@@ -45,7 +44,9 @@ Object subclass: GCGstConvertCommand [
 	'(Dictionary withAll: ``@arg2)' -> '(Dictionary from: ``@arg2)'.
 	'(``@object allSubInstancesDo: ``@arg2)' 
 	    -> '(``@object allSubinstancesDo: ``@arg2)'.
-	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'}
+	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'.
+	'(``@object allMethodsInCategory: ``@arg1)' 
+	    -> '(``@object class methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector] asArray'}
     ]
 
     GCGstConvertCommand class >> statements [
@@ -91,6 +92,7 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object <= ``@arg2)'.
 	'(``@object isZero)' -> '(``@object = 0)'.
 	'FileDirectory dot' -> '$. asString'.
+	'FileStream st' -> '($s asString, $t asString)'.
 	'(``@object beginsWith: ``@arg2)' -> '(``@object startsWith: ``@arg2)'.
 	'(``@object ifNil: ``@arg1 ifNotNilDo: ``@arg2)' 
 	    -> '(``@object ifNil: ``@arg1 ifNotNil: ``@arg2)'.
@@ -114,13 +116,10 @@ Object subclass: GCGstConvertCommand [
 		    commandLineFor: aFilepath
 		    from: input
 		    to: output).
-	filename := FilePath stripPathFrom: aFilepath.
-	File remove: aFilepath.
-	File 
-	    rename: (File path: (FilePath pathFor: aFilepath)) name 
-		    , Directory pathSeparatorString , (filename , '.converted')
-	    to: (File path: (FilePath pathFor: aFilepath)) name 
-		    , Directory pathSeparatorString , filename
+	filename := FileDirectory localNameFor: aFilepath.
+	FileDirectory deleteFilePath: aFilepath.
+	(FileDirectory forFileName: aFilepath) rename: filename , '.converted'
+	    toBe: filename
     ]
 
     GCGstConvertCommand class >> commandLineFor: aFilepath from: input to: output [
@@ -130,7 +129,7 @@ Object subclass: GCGstConvertCommand [
 	| stream |
 	stream := WriteStream on: (String new: 1000).
 	stream nextPutAll: 'gst-convert -f ' , input , ' -F ' , output , ' '.
-	(self class allMethodsInCategory: input , '-to-' , output , '-rules') 
+	(self allMethodsInCategory: input , '-to-' , output , '-rules') 
 	    do: [:method | self writeRules: (self perform: method) to: stream].
 	self 
 	    flip: (self perform: (input , 'Newline') asSymbol)

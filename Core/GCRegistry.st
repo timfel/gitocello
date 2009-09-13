@@ -22,11 +22,12 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 
 	<category: 'class initialization'>
 	| repoDir |
-	repoDir := Directory working.
-	(aString findBetweenSubStrs: Directory pathSeparator asString) do: 
+	repoDir := FileDirectory default.
+	(aString findBetweenSubStrs: FileDirectory pathNameDelimiter asString) 
+	    do: 
 		[:each | 
-		(File path: each) exists ifFalse: [(File path: each) createDirectory].
-		repoDir := repoDir / each].
+		(repoDir directoryExists: each) ifFalse: [repoDir createDirectory: each].
+		repoDir := repoDir directoryNamed: each].
 	^repoDir
     ]
 
@@ -43,7 +44,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	"One global Registry is enough"
 
 	<category: 'class initialization'>
-	^self instance ifNil: [instance := super new] ifNotNil: [:foo | instance]
+	^self instance ifNil: [instance := super new] ifNotNil: [instance]
     ]
 
     GCRegistry class >> instance [
@@ -79,7 +80,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	<category: 'class variables'>
 	RepositoryRoot := aStringOrDirectory isString 
 		    ifTrue: [self createDirectoryStructure: aStringOrDirectory]
-		    ifFalse: [self createDirectoryStructure: aStringOrDirectory name]
+		    ifFalse: [self createDirectoryStructure: aStringOrDirectory pathName]
     ]
 
     GCRegistry class >> tracksPackage: aPackageNameOrMCPackage [
@@ -109,8 +110,8 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 
 	<category: 'helpers'>
 	git
-	    localPath: RepositoryRoot name , Directory pathSeparator asString 
-			, aPackage;
+	    localPath: RepositoryRoot pathName 
+			, FileDirectory pathNameDelimiter asString , aPackage;
 	    perform: aGitCommand withArguments: anArgumentsArray
     ]
 
@@ -197,7 +198,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	<category: 'fileOut'>
 	| files |
 	files := (GCMapper newFor: aPackage)
-		    repoDir: RepositoryRoot / aPackage;
+		    repoDir: (RepositoryRoot directoryNamed: aPackage);
 		    fileOutPackage;
 		    files.
 	files do: 
@@ -207,7 +208,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 		    from: 'squeak'
 		    to: 'gst'].
 	(GCGstPackageWriter newFor: aPackage)
-	    repoDir: RepositoryRoot / aPackage;
+	    repoDir: (RepositoryRoot directoryNamed: aPackage);
 	    fileOutPackageXml
     ]
 ]
