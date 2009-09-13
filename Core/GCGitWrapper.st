@@ -1,14 +1,71 @@
-Object: SyntaxConverter new "<-0x4c4c9ce8>" error: expected ->
-Error(Exception)>>signal (AnsiExcept.st:216)
-Error(Exception)>>signal: (AnsiExcept.st:226)
-SyntaxConverter(Object)>>error: (AnsiExcept.st:1565)
-SyntaxConverter>>addRule: (/usr/share/smalltalk/scripts/Convert.st:269)
-[] in UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:485)
-Getopt>>parseOption:kind:with: (Getopt.st:152)
-Getopt>>parseShortOptions: (Getopt.st:187)
-Getopt>>parseOneArgument (Getopt.st:209)
-Getopt>>parse (Getopt.st:216)
-Getopt>>parse: (Getopt.st:355)
-Getopt class>>parse:with:do:ifError: (Getopt.st:96)
-SystemDictionary>>arguments:do:ifError: (Getopt.st:418)
-UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:524)
+Object subclass: GCGitWrapper [
+    | localPath |
+    
+    <category: 'Gitocello-Core'>
+    <comment: nil>
+
+    add [
+	"Just add all"
+
+	<category: 'commands'>
+	self gitCommand: 'add .'
+    ]
+
+    add: matchString [
+	"Add using matchString"
+
+	<category: 'commands'>
+	self gitCommand: 'add ' , matchString
+    ]
+
+    commit: commitMsg [
+	"Commit changes to the local repository"
+
+	<category: 'commands'>
+	self gitCommand: 'commit -m "' , commitMsg , '"'
+    ]
+
+    gitCommand: aCommandString [
+	"Enter the local repository and run the 'git' command with the parameters"
+
+	<category: 'commands'>
+	OSProcess 
+	    waitForCommand: 'cd ' , self localPath , '; git ' , aCommandString
+    ]
+
+    init [
+	<category: 'commands'>
+	self gitCommand: 'init'
+    ]
+
+    origin: aRemoteUrl [
+	<category: 'commands'>
+	self gitCommand: 'remote rm origin'.
+	self gitCommand: 'remote add origin ' , aRemoteUrl
+    ]
+
+    pull [
+	<category: 'commands'>
+	self gitCommand: 'pull origin master'
+    ]
+
+    push [
+	<category: 'commands'>
+	self gitCommand: 'push origin master'
+    ]
+
+    localPath [
+	"Answer the value of localPath"
+
+	<category: 'accessing'>
+	^localPath
+    ]
+
+    localPath: anObject [
+	"Set the value of localPath"
+
+	<category: 'accessing'>
+	localPath := anObject
+    ]
+]
+
