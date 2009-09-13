@@ -68,8 +68,9 @@ Object subclass: GCGstConvertCommand [
 	    inject: OrderedCollection new
 	    into: 
 		[:list :method | 
-		list 
-		    union: ((self perform: method) collect: [:each | each value -> each key])]
+		(list copy 
+		    addAll: ((self perform: method) collect: [:each | each value -> each key])) 
+			asSet]
     ]
 
     GCGstConvertCommand class >> squeakBidirectional [
@@ -78,7 +79,7 @@ Object subclass: GCGstConvertCommand [
 	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
 		collect: [:each | each selector]) asArray 
 	    inject: OrderedCollection new
-	    into: [:list :method | list union: (self perform: method)]
+	    into: [:list :method | (list copy addAll: (self perform: method)) asSet]
     ]
 
     GCGstConvertCommand class >> squeakClassNames [
@@ -96,6 +97,7 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object <= ``@arg2)'.
 	'(``@object isZero)' -> '(``@object = 0)'.
 	'FileDirectory dot' -> '$. asString'.
+	'(``@object union: ``@arg1)' -> '(``@object copy addAll: ``@arg1) asSet'.
 	'FileStream st' -> '($s asString, $t asString)'.
 	'(``@object beginsWith: ``@arg2)' -> '(``@object startsWith: ``@arg2)'.
 	'(``@object ifNil: ``@arg1 ifNotNilDo: ``@arg2)' 

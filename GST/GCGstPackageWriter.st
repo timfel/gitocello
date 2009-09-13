@@ -32,7 +32,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	<category: 'stream-writing'>
 	| packageInfo |
 	packageInfo := PackageInfo named: self packageName.
-	^packageInfo classes union: packageInfo extensionClasses
+	^(packageInfo classes copy addAll: packageInfo extensionClasses) asSet
     ]
 
     createPackageXml [
