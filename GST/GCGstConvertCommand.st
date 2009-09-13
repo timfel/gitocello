@@ -11,7 +11,7 @@ Object subclass: GCGstConvertCommand [
 	'MessageSend' -> 'DirectedMessage'.
 	'DateAndTime' -> 'DateTime'.
 	'UnhandledError' -> 'SystemExceptions.UnhandledException'.
-	'FileDirectory' -> 'Directory'}
+	'FileDirectory' -> 'File'}
     ]
 
     GCGstConvertCommand class >> methodNames [
@@ -21,6 +21,13 @@ Object subclass: GCGstConvertCommand [
 	'TimeStamp current' -> 'DateTime now'.
 	'FileDirectory pathNameDelimiter' -> 'Directory pathSeparator'.
 	'FileDirectory default' -> 'Directory working'.
+	'(FileDirectory deleteFilePath: ``@arg2)' -> '(File remove: ``@arg2)'.
+	'(``@object rename: ``@arg1 toBe: ``@arg2)' 
+	    -> '(File rename: ``@object name, Directory pathSeparatorString,``@arg1 to: ``@object name, Directory pathSeparatorString,``@arg2)'.
+	'(FileDirectory forFileName: ``@arg2)' 
+	    -> '(File path: (FilePath pathFor: ``@arg2))'.
+	'(FileDirectory localNameFor: ``@arg2)' 
+	    -> '(FilePath stripPathFrom: ``@arg2)'.
 	'(``@object recursiveDelete)' -> '(``@object all remove)'.
 	'(``@object containingDirectory)' -> '(``@object parent)'.
 	'(``@object assureExistence)' -> '(``@object createDirectories)'.
@@ -101,10 +108,13 @@ Object subclass: GCGstConvertCommand [
 		    commandLineFor: aFilepath
 		    from: input
 		    to: output).
-	filename := Directory localNameFor: aFilepath.
-	Directory deleteFilePath: aFilepath.
-	(Directory forFileName: aFilepath) rename: filename , '.converted'
-	    toBe: filename
+	filename := FilePath stripPathFrom: aFilepath.
+	File remove: aFilepath.
+	File 
+	    rename: (File path: (FilePath pathFor: aFilepath)) name 
+		    , Directory pathSeparatorString , (filename , '.converted')
+	    to: (File path: (FilePath pathFor: aFilepath)) name 
+		    , Directory pathSeparatorString , filename
     ]
 
     GCGstConvertCommand class >> commandLineFor: aFilepath from: input to: output [

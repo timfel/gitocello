@@ -107,7 +107,7 @@ become
 	aStream contents isAsciiString 
 	    ifTrue: [converter := MacRomanTextConverter new]
 	    ifFalse: [converter := UTF8TextConverter new].
-	fileName := aFile , (Directory dot , FileStream st).
+	fileName := aFile , (File dot , FileStream st).
 	f := MultiByteFileStream new open: fileName forWrite: true.
 	f ifNil: [^self error: 'Cannot open file'].
 	(converter isMemberOf: UTF8TextConverter) 
