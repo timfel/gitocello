@@ -112,7 +112,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	testCases := testClasses inject: String new
 		    into: 
 			[:s :class | 
-			s := s , self packageName , '.' , class name asString , newline asString].
+			s , self packageName , '.' , class name asString , newline asString].
 	self packageXmlStream nextPutAll: '<test>' , newline asString.
 	testClasses do: [:class | self fileIn: class].
 	self putAttribute: 'sunit' with: testCases.
