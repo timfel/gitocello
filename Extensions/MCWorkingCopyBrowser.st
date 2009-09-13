@@ -1,27 +1,59 @@
-Object: RBParser new "<-0x4c4f7330>" error: (a #String):1: Variable expected
-Error(Exception)>>signal (AnsiExcept.st:216)
-Error(Exception)>>signal: (AnsiExcept.st:226)
-STInST.RBParser(Object)>>error: (AnsiExcept.st:1565)
-STInST.RBParser>>parserError: (Parser.star#VFS.ZipFile/RBParser.st:208)
-STInST.RBParser>>parsePrimitiveObject (Parser.star#VFS.ZipFile/RBParser.st:573)
-STInST.RBParser>>parseUnaryMessage (Parser.star#VFS.ZipFile/RBParser.st:659)
-STInST.RBParser>>parseBinaryMessageWith: (Parser.star#VFS.ZipFile/RBParser.st:309)
-STInST.RBParser>>parseBinaryMessage (Parser.star#VFS.ZipFile/RBParser.st:288)
-STInST.RBParser>>parseKeywordMessage (Parser.star#VFS.ZipFile/RBParser.st:404)
-STInST.RBParser>>parseCascadeMessage (Parser.star#VFS.ZipFile/RBParser.st:379)
-STInST.RBParser>>parseAssignment (Parser.star#VFS.ZipFile/RBParser.st:273)
-STInST.RBParser>>parseStatementList:into: (Parser.star#VFS.ZipFile/RBParser.st:614)
-STInST.RBParser>>parseStatements: (Parser.star#VFS.ZipFile/RBParser.st:653)
-STInST.RBParser>>parseExpression (Parser.star#VFS.ZipFile/RBParser.st:153)
-STInST.RBParser class>>parseRewriteExpression:onError: (Parser.star#VFS.ZipFile/RBParser.st:87)
-STInST.RBParser class>>parseRewriteExpression: (Parser.star#VFS.ZipFile/RBParser.st:77)
-SyntaxConverter>>addRule: (/usr/share/smalltalk/scripts/Convert.st:268)
-[] in UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:485)
-Getopt>>parseOption:kind:with: (Getopt.st:152)
-Getopt>>parseShortOptions: (Getopt.st:187)
-Getopt>>parseOneArgument (Getopt.st:209)
-Getopt>>parse (Getopt.st:216)
-Getopt>>parse: (Getopt.st:355)
-Getopt class>>parse:with:do:ifError: (Getopt.st:96)
-SystemDictionary>>arguments:do:ifError: (Getopt.st:418)
-UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:524)
+MCWorkingCopyBrowser extend [
+
+    saveVersion [
+	<category: '*gitocello'>
+	| repo |
+	self canSave ifFalse: [^self].
+	self checkForNewerVersions ifFalse: [^self].
+	repo := self repository.
+	workingCopy newVersion ifNotNil: 
+		[:v | 
+		(MCVersionInspector new version: v) show.
+		Cursor wait showWhile: [repo storeVersion: v].
+		MCCacheRepository default cacheAllFileNamesDuring: 
+			[repo cacheAllFileNamesDuring: 
+				[v allAvailableDependenciesDo: 
+					[:dep | 
+					(repo includesVersionNamed: dep info name) 
+					    ifFalse: [repo storeVersion: dep]]]].
+		(GCRegistry tracksPackage: workingCopy package name) 
+		    ifTrue: [GCRegistry commit: workingCopy package name]]
+    ]
+
+    trackWithGit [
+	<category: '*gitocello'>
+	GCRegistry createRepositoryFor: workingCopy package name
+    ]
+
+    untrackWithGit [
+	<category: '*gitocello'>
+	GCRegistry removeRepositoryFor: workingCopy package name
+    ]
+
+    workingCopyListMenu: aMenu [
+	<category: '*gitocello'>
+	workingCopy ifNil: [^aMenu].
+	self fillMenu: aMenu
+	    fromSpecs: #(#('add required package' #addRequiredPackage) #('clear required packages' #clearRequiredPackages) #('browse package' #browseWorkingCopy) #('view changes' #viewChanges) #('view history' #viewHistory) #('recompile package' #recompilePackage) #('revert package...' #revertPackage) #('unload package' #unloadPackage) #('delete working copy' #deleteWorkingCopy)).
+	(Smalltalk includesKey: #SARMCPackageDumper) 
+	    ifTrue: 
+		[aMenu 
+		    add: 'make SAR'
+		    target: self
+		    selector: #fileOutAsSAR].
+	(GCRegistry tracksPackage: workingCopy package) 
+	    ifFalse: 
+		[aMenu 
+		    add: 'track with Git'
+		    target: self
+		    selector: #trackWithGit]
+	    ifTrue: 
+		[aMenu 
+		    add: 'untrack with Git'
+		    target: self
+		    selector: #untrackWithGit].
+	^aMenu
+    ]
+
+]
+
