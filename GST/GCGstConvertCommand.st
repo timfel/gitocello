@@ -19,6 +19,7 @@ Object subclass: GCGstConvertCommand [
 	^
 	{'Date current' -> 'Date today'.
 	'TimeStamp current' -> 'DateTime now'.
+	'FileStream st' -> '($s asString, $t asString)'.
 	'FileDirectory pathNameDelimiter' -> 'Directory pathSeparator'.
 	'FileDirectory default' -> 'Directory working'.
 	'(FileDirectory deleteFilePath: ``@arg2)' -> '(File remove: ``@arg2)'.
