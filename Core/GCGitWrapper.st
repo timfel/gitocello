@@ -1,71 +1,27 @@
-Object subclass: GCGitWrapper [
-    | localPath |
-    
-    <category: 'Gitocello-Core'>
-    <comment: nil>
-
-    add [
-	"Just add all"
-
-	<category: 'commands'>
-	self gitCommand: 'add .'
-    ]
-
-    add: matchString [
-	"Add using matchString"
-
-	<category: 'commands'>
-	self gitCommand: 'add ' , matchString
-    ]
-
-    commit: commitMsg [
-	"Commit changes to the local repository"
-
-	<category: 'commands'>
-	self gitCommand: 'commit -m "' , commitMsg , '"'
-    ]
-
-    gitCommand: aCommandString [
-	"Enter the local repository and run the 'git' command with the parameters"
-
-	<category: 'commands'>
-	OSProcess 
-	    waitForCommand: 'cd ' , self localPath , '; git ' , aCommandString
-    ]
-
-    init [
-	<category: 'commands'>
-	self gitCommand: 'init'
-    ]
-
-    origin: aRemoteUrl [
-	<category: 'commands'>
-	self gitCommand: 'remote rm origin'.
-	self gitCommand: 'remote add origin ' , aRemoteUrl
-    ]
-
-    pull [
-	<category: 'commands'>
-	self gitCommand: 'pull origin master'
-    ]
-
-    push [
-	<category: 'commands'>
-	self gitCommand: 'push origin master'
-    ]
-
-    localPath [
-	"Answer the value of localPath"
-
-	<category: 'accessing'>
-	^localPath
-    ]
-
-    localPath: anObject [
-	"Set the value of localPath"
-
-	<category: 'accessing'>
-	localPath := anObject
-    ]
-]
-
+Object: RBParser new "<-0x4c3d8508>" error: (a #String):1: Variable expected
+Error(Exception)>>signal (AnsiExcept.st:216)
+Error(Exception)>>signal: (AnsiExcept.st:226)
+STInST.RBParser(Object)>>error: (AnsiExcept.st:1565)
+STInST.RBParser>>parserError: (Parser.star#VFS.ZipFile/RBParser.st:208)
+STInST.RBParser>>parsePrimitiveObject (Parser.star#VFS.ZipFile/RBParser.st:573)
+STInST.RBParser>>parseUnaryMessage (Parser.star#VFS.ZipFile/RBParser.st:659)
+STInST.RBParser>>parseBinaryMessageWith: (Parser.star#VFS.ZipFile/RBParser.st:309)
+STInST.RBParser>>parseBinaryMessage (Parser.star#VFS.ZipFile/RBParser.st:288)
+STInST.RBParser>>parseKeywordMessage (Parser.star#VFS.ZipFile/RBParser.st:404)
+STInST.RBParser>>parseCascadeMessage (Parser.star#VFS.ZipFile/RBParser.st:379)
+STInST.RBParser>>parseAssignment (Parser.star#VFS.ZipFile/RBParser.st:273)
+STInST.RBParser>>parseStatementList:into: (Parser.star#VFS.ZipFile/RBParser.st:614)
+STInST.RBParser>>parseStatements: (Parser.star#VFS.ZipFile/RBParser.st:653)
+STInST.RBParser>>parseExpression (Parser.star#VFS.ZipFile/RBParser.st:153)
+STInST.RBParser class>>parseRewriteExpression:onError: (Parser.star#VFS.ZipFile/RBParser.st:87)
+STInST.RBParser class>>parseRewriteExpression: (Parser.star#VFS.ZipFile/RBParser.st:77)
+SyntaxConverter>>addRule: (/usr/share/smalltalk/scripts/Convert.st:268)
+[] in UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:485)
+Getopt>>parseOption:kind:with: (Getopt.st:152)
+Getopt>>parseShortOptions: (Getopt.st:187)
+Getopt>>parseOneArgument (Getopt.st:209)
+Getopt>>parse (Getopt.st:216)
+Getopt>>parse: (Getopt.st:355)
+Getopt class>>parse:with:do:ifError: (Getopt.st:96)
+SystemDictionary>>arguments:do:ifError: (Getopt.st:418)
+UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:524)

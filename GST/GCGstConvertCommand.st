@@ -1,173 +1,27 @@
-Object subclass: GCGstConvertCommand [
-    
-    <category: 'Gitocello-GST'>
-    <comment: 'I am used for converting a Squeak source file to Gnu Smalltalk syntax using the gst-convert tool with the options found at http://smalltalk.gnu.org/faq/169'>
-
-    GCGstConvertCommand class >> classNames [
-	<category: 'bidirectional-rules'>
-	^
-	{'Float' -> 'FloatD'.
-	'BlockContext' -> 'BlockClosure'.
-	'MessageSend' -> 'DirectedMessage'.
-	'DateAndTime' -> 'DateTime'.
-	'UnhandledError' -> 'SystemExceptions.UnhandledException'.
-	'FileDirectory' -> 'File'}
-    ]
-
-    GCGstConvertCommand class >> methodNames [
-	<category: 'bidirectional-rules'>
-	^
-	{'Date current' -> 'Date today'.
-	'TimeStamp current' -> 'DateTime now'.
-	'FileStream st' -> '''''st'''' clone'.
-	'FileDirectory pathNameDelimiter' -> 'Directory pathSeparator'.
-	'FileDirectory default' -> 'Directory working'.
-	'(FileDirectory deleteFilePath: ``@arg2)' -> '(File remove: ``@arg2)'.
-	'(``@object rename: ``@arg1 toBe: ``@arg2)' 
-	    -> '(File rename: ``@object name, Directory pathSeparatorString,``@arg1 to: ``@object name, Directory pathSeparatorString,``@arg2)'.
-	'(FileDirectory forFileName: ``@arg2)' 
-	    -> '(File path: (FilePath pathFor: ``@arg2))'.
-	'(FileDirectory localNameFor: ``@arg2)' 
-	    -> '(FilePath stripPathFrom: ``@arg2)'.
-	'(``@object directoryExists: ``@arg2)' -> '(File path: ``@arg2) exists'.
-	'(``@object createDirectory: ``@arg2)' 
-	    -> '(File path: ``@arg2) createDirectory'.
-	'(``@object recursiveDelete)' -> '(``@object all remove)'.
-	'(``@object pathName)' -> '(``@object name)'.
-	'(``@object containingDirectory)' -> '(``@object parent)'.
-	'(``@object assureExistence)' -> '(``@object createDirectories)'.
-	'(FileDirectory on: ``@arg2)' -> '(``@arg2 asFile)'.
-	'(``@object directoryNamed: ``@arg2)' -> '(``@object / ``@arg2)'.
-	'(``@object readOnlyFileNamed: ``@arg2)' 
-	    -> '(``@object / ``@arg2) readStream'.
-	'(``@object forceNewFileNamed: ``@arg2)' 
-	    -> '(``@object / ``@arg2) writeStream'.
-	'(Dictionary withAll: ``@arg2)' -> '(Dictionary from: ``@arg2)'.
-	'(``@object allSubInstancesDo: ``@arg2)' 
-	    -> '(``@object allSubinstancesDo: ``@arg2)'.
-	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'}
-    ]
-
-    GCGstConvertCommand class >> statements [
-	<category: 'bidirectional-rules'>
-	^
-	{'(``@object ifNil: ``@arg ifNotNil: [ | `@t2 | `@.s2 ])' 
-	    -> '(``@object ifNil: ``@arg ifNotNil: [ :foo || `@t2 | `@.s2 ])'.
-	'(``@object ifNotNil: [ | `@t2 | `@.s2 ] ifNil: ``@arg)' 
-	    -> '(``@object ifNotNil: [ :foo || `@t2 | `@.s2 ] ifNil: ``@arg)'.
-	'(``@object ifNotNil: [ | `@t2 | `@.s2 ])' 
-	    -> '(``@object ifNotNil: [ :foo || `@t2 | `@.s2 ])'}
-    ]
-
-    GCGstConvertCommand class >> gstBidirectional [
-	<category: 'gst-to-squeak-rules'>
-	^(self class allMethodsInCategory: 'bidirectional-rules') 
-	    inject: OrderedCollection new
-	    into: 
-		[:list :method | 
-		list 
-		    union: ((self perform: method) collect: [:each | each value -> each key])]
-    ]
-
-    GCGstConvertCommand class >> squeakBidirectional [
-	<category: 'squeak-to-gst-rules'>
-	^(self class allMethodsInCategory: 'bidirectional-rules') 
-	    inject: OrderedCollection new
-	    into: [:list :method | list union: (self perform: method)]
-    ]
-
-    GCGstConvertCommand class >> squeakClassNames [
-	<category: 'squeak-to-gst-rules'>
-	^
-	{'TimeStamp' -> 'DateTime'.
-	'ProtoObject' -> 'nil'}
-    ]
-
-    GCGstConvertCommand class >> squeakMethodNames [
-	<category: 'squeak-to-gst-rules'>
-	^
-	{'(``@object fileExists: ``@arg2)' -> '(``@object includes: ``@arg2)'.
-	'(``@object caseInsensitiveLessOrEqual: ``@arg2)' 
-	    -> '(``@object <= ``@arg2)'.
-	'(``@object isZero)' -> '(``@object = 0)'.
-	'FileDirectory dot' -> '$. asString'.
-	'(``@object beginsWith: ``@arg2)' -> '(``@object startsWith: ``@arg2)'.
-	'(``@object ifNil: ``@arg1 ifNotNilDo: ``@arg2)' 
-	    -> '(``@object ifNil: ``@arg1 ifNotNil: ``@arg2)'.
-	'(``@object ifNotNilDo: ``@arg2 ifNil: ``@arg1)' 
-	    -> '(``@object ifNotNil: ``@arg2 ifNil: ``@arg1)'.
-	'(``@object ifNotNilDo: ``@arg2)' -> '(``@object ifNotNil: ``@arg2)'.
-	'(``@object doIfNotNil: ``@arg2)' -> '(``@object ifNotNil: ``@arg2)'}
-    ]
-
-    GCGstConvertCommand class >> squeakStatements [
-	<category: 'squeak-to-gst-rules'>
-	^
-	{'(``@object and: ``@arg1 and: ``@arg2)' 
-	    -> '((``@object and: ``@arg1) and: ``@arg2)'}
-    ]
-
-    GCGstConvertCommand class >> convert: aFilepath from: input to: output [
-	<category: 'actions'>
-	| filename |
-	OSProcess waitForCommand: (self 
-		    commandLineFor: aFilepath
-		    from: input
-		    to: output).
-	filename := FilePath stripPathFrom: aFilepath.
-	File remove: aFilepath.
-	File 
-	    rename: (File path: (FilePath pathFor: aFilepath)) name 
-		    , Directory pathSeparatorString , (filename , '.converted')
-	    to: (File path: (FilePath pathFor: aFilepath)) name 
-		    , Directory pathSeparatorString , filename
-    ]
-
-    GCGstConvertCommand class >> commandLineFor: aFilepath from: input to: output [
-	"see http://smalltalk.gnu.org/faq/169 for info on gst-convert command-line"
-
-	<category: 'command-building'>
-	| stream |
-	stream := WriteStream on: (String new: 1000).
-	stream nextPutAll: 'gst-convert -f ' , input , ' -F ' , output , ' '.
-	(self class allMethodsInCategory: input , '-to-' , output , '-rules') 
-	    do: [:method | self writeRules: (self perform: method) to: stream].
-	self 
-	    flip: (self perform: (input , 'Newline') asSymbol)
-	    with: (self perform: (output , 'Newline') asSymbol)
-	    on: aFilepath
-	    in: stream.
-	^stream contents
-    ]
-
-    GCGstConvertCommand class >> flip: aString with: anotherString on: aFilepath in: aStream [
-	<category: 'command-building'>
-	aStream
-	    nextPutAll: '"' , aFilepath , '"';
-	    nextPutAll: ' - | tr ' , aString , ' ' , anotherString , ' > ';
-	    nextPutAll: '"' , aFilepath , '.converted"'
-    ]
-
-    GCGstConvertCommand class >> writeRules: someRules to: aStream [
-	<category: 'command-building'>
-	someRules do: 
-		[:each | 
-		aStream
-		    nextPutAll: '-r';
-		    nextPut: $';
-		    nextPutAll: (each asString copyWithout: $');
-		    nextPut: $';
-		    nextPut: Character space]
-    ]
-
-    GCGstConvertCommand class >> gstNewline [
-	<category: 'literals'>
-	^'\\n'
-    ]
-
-    GCGstConvertCommand class >> squeakNewline [
-	<category: 'literals'>
-	^'\\r'
-    ]
-]
-
+Object: RBParser new "<-0x4c4a6528>" error: (a #String):1: Variable expected
+Error(Exception)>>signal (AnsiExcept.st:216)
+Error(Exception)>>signal: (AnsiExcept.st:226)
+STInST.RBParser(Object)>>error: (AnsiExcept.st:1565)
+STInST.RBParser>>parserError: (Parser.star#VFS.ZipFile/RBParser.st:208)
+STInST.RBParser>>parsePrimitiveObject (Parser.star#VFS.ZipFile/RBParser.st:573)
+STInST.RBParser>>parseUnaryMessage (Parser.star#VFS.ZipFile/RBParser.st:659)
+STInST.RBParser>>parseBinaryMessageWith: (Parser.star#VFS.ZipFile/RBParser.st:309)
+STInST.RBParser>>parseBinaryMessage (Parser.star#VFS.ZipFile/RBParser.st:288)
+STInST.RBParser>>parseKeywordMessage (Parser.star#VFS.ZipFile/RBParser.st:404)
+STInST.RBParser>>parseCascadeMessage (Parser.star#VFS.ZipFile/RBParser.st:379)
+STInST.RBParser>>parseAssignment (Parser.star#VFS.ZipFile/RBParser.st:273)
+STInST.RBParser>>parseStatementList:into: (Parser.star#VFS.ZipFile/RBParser.st:614)
+STInST.RBParser>>parseStatements: (Parser.star#VFS.ZipFile/RBParser.st:653)
+STInST.RBParser>>parseExpression (Parser.star#VFS.ZipFile/RBParser.st:153)
+STInST.RBParser class>>parseRewriteExpression:onError: (Parser.star#VFS.ZipFile/RBParser.st:87)
+STInST.RBParser class>>parseRewriteExpression: (Parser.star#VFS.ZipFile/RBParser.st:77)
+SyntaxConverter>>addRule: (/usr/share/smalltalk/scripts/Convert.st:268)
+[] in UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:485)
+Getopt>>parseOption:kind:with: (Getopt.st:152)
+Getopt>>parseShortOptions: (Getopt.st:187)
+Getopt>>parseOneArgument (Getopt.st:209)
+Getopt>>parse (Getopt.st:216)
+Getopt>>parse: (Getopt.st:355)
+Getopt class>>parse:with:do:ifError: (Getopt.st:96)
+SystemDictionary>>arguments:do:ifError: (Getopt.st:418)
+UndefinedObject>>executeStatements (/usr/share/smalltalk/scripts/Convert.st:524)
