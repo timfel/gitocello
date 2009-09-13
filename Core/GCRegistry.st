@@ -176,8 +176,8 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 		    inject: String new
 		    into: 
 			[:string :next | 
-			string := string , cr , cr , next date asString , ': ' , next author , cr 
-				    , next message].
+			string , cr , cr , next date asString , ': ' , next author , cr 
+			    , next message].
 	self repositories at: aPackage
 	    put: (MCPackage named: aPackage) workingCopy ancestry breadthFirstAncestors.
 	^self escapeForBash: messages
