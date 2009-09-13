@@ -42,8 +42,8 @@ Object subclass: GCGstConvertCommand [
 	'(``@object allSubInstancesDo: ``@arg2)' 
 	    -> '(``@object allSubinstancesDo: ``@arg2)'.
 	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'.
-	'(``@object allMethodsInCategory: ``@arg1)' 
-	    -> '((``@object methodDictionary asSet select: [:msg | msg methodCategory = ``@arg1 ]) collect: [:each | each selector]) asArray'}
+	'((``@object methodClass organization categoryOfElement: ``@object selector))' 
+	    -> '(``@object methodDictionary)'}
     ]
 
     GCGstConvertCommand class >> statements [
@@ -61,10 +61,7 @@ Object subclass: GCGstConvertCommand [
 	"Reverse all bidirectional rules to apply them for squeak -> gst conversion"
 
 	<category: 'gst-to-squeak-rules'>
-	^((self class methodDictionary asSet 
-	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
-		collect: [:each | each selector]) asArray 
-	    inject: OrderedCollection new
+	^(self allMethodsIn: 'bidirectional-rules') inject: OrderedCollection new
 	    into: 
 		[:list :method | 
 		(list asSet)
@@ -76,10 +73,7 @@ Object subclass: GCGstConvertCommand [
 	"Find all bidirectional rules to include them in the conversion"
 
 	<category: 'squeak-to-gst-rules'>
-	^((self class methodDictionary asSet 
-	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
-		collect: [:each | each selector]) asArray 
-	    inject: OrderedCollection new
+	^(self allMethodsIn: 'bidirectional-rules') inject: OrderedCollection new
 	    into: 
 		[:list :method | 
 		(list asSet)
@@ -147,9 +141,7 @@ Object subclass: GCGstConvertCommand [
 	| stream |
 	stream := WriteStream on: (String new: 1000).
 	stream nextPutAll: 'gst-convert -f ' , input , ' -F ' , output , ' '.
-	((self class methodDictionary asSet 
-	    select: [:msg | msg methodCategory = (((input , '-to-') , output) , '-rules')]) 
-		collect: [:each | each selector]) asArray 
+	(self allMethodsIn: input , '-to-' , output , '-rules') 
 	    do: [:method | self writeRules: (self perform: method) to: stream].
 	self 
 	    flip: (self perform: (input , 'Newline') asSymbol)
@@ -187,6 +179,13 @@ Object subclass: GCGstConvertCommand [
     GCGstConvertCommand class >> squeakNewline [
 	<category: 'literals'>
 	^'\\r'
+    ]
+
+    GCGstConvertCommand class >> allMethodsIn: aCategory [
+	<category: 'private'>
+	^((self class methodDictionary asSet 
+	    select: [:msg | msg methodDictionary = aCategory asSymbol]) 
+		collect: [:each | each selector]) asArray
     ]
 ]
 

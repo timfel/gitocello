@@ -6,11 +6,15 @@
 <sunit></sunit>
 </test>
 <filein>GST/GCGstPackageWriter.st</filein>
+<filein>UI/MCWorkingCopyBrowser.st</filein>
 <filein>Core/GCMapper.st</filein>
 <filein>GST/GCGstConvertCommand.st</filein>
+<filein>Core/GCRegistry.st</filein>
 <filein>Core/GCGitWrapper.st</filein>
 <file>Core/GCGitWrapper.st</file>
 <file>Core/GCMapper.st</file>
+<file>UI/MCWorkingCopyBrowser.st</file>
+<file>Core/GCRegistry.st</file>
 <file>GST/GCGstConvertCommand.st</file>
 <file>GST/GCGstPackageWriter.st</file>
 </package>
