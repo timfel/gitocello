@@ -22,6 +22,7 @@ cd "$folder"
 # get packaging details
 packageName="${folder##*/}"
 lastMczVersion=$(echo "$(ls ${packageCache}/${packageName}*)" | tr -d [:alpha:] | sort -nr | grep -m1 . | tr -cd [:digit:])
+lastMczVersion=$(for i in ls ${packageCache}/${packageName}*; do j=${i%.mcz}; echo ${j##*.}; done | sort -nr | grep -m1 .)
 lastMcz=`echo "$(ls ${packageCache}/${packageName}*)" | grep -m1 .$lastMczVersion.mcz`
 oldVersion=`unzip -p ${lastMcz} version`
 lastCommit=`git log -1 HEAD`
@@ -33,7 +34,7 @@ commitId=`echo $lastCommit | awk '{print $2}'`
 commitId="${commitId:0:32}----"
 
 # create temporary directory
-dir="${packageName}-${commitAuthor}-via-Git.$[lastMczVersion + 1]"
+dir="${packageName}-${commitAuthor}.via.Git.$[lastMczVersion + 1]"
 mkdir $dir
 
 # create package and version file
@@ -62,12 +63,13 @@ if [ -n "$(ls | grep -P [A-Z].*.st$)" ]; then
 fi
 # for all folders with source files, file-in those files
 for i in $folders; do
-   for j in $folders/*.st; do
-      cat $j >> $dir/snapshot/source-gst.st
-      gst2squeak $dir/snapshot/source-gst.st $dir/snapshot/source.st
-      rm $dir/snapshot/source-gst.st
+   for j in $i/*.st; do
+      cat $j >> source.st
    done
 done
+bash -c "$(gst -f git-hooks/gst2squeak.st)"
+mv source.st.converted $dir/snapshot/source.st
+rm source.st
 
 # Zip them up (Monticello is just Zip), put the pkg into the packageCache 
 # and remove the temporary directory
