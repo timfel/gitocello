@@ -43,7 +43,7 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object allSubinstancesDo: ``@arg2)'.
 	'(``@object newFrom: ``@arg2)' -> '(``@object from: ``@arg2)'.
 	'((``@object methodClass organization categoryOfElement: ``@object selector))' 
-	    -> '(``@object methodDictionary)'}
+	    -> '(``@object methodCategory)'}
     ]
 
     GCGstConvertCommand class >> statements [
@@ -184,7 +184,7 @@ Object subclass: GCGstConvertCommand [
     GCGstConvertCommand class >> allMethodsIn: aCategory [
 	<category: 'private'>
 	^((self class methodDictionary asSet 
-	    select: [:msg | msg methodDictionary = aCategory asSymbol]) 
+	    select: [:msg | msg methodCategory asString = aCategory]) 
 		collect: [:each | each selector]) asArray
     ]
 ]
