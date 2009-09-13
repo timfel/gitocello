@@ -25,7 +25,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	repoDir := Directory working.
 	(aString findBetweenSubStrs: Directory pathSeparator asString) do: 
 		[:each | 
-		(File path: each) exists ifFalse: [(File path: each) createDirectory].
+		(File path: each) exists ifFalse: [repoDir createDirectory: each].
 		repoDir := repoDir / each].
 	^repoDir
     ]

@@ -31,7 +31,7 @@ become
     createFolder: aSubfolder [
 	<category: 'fileOut'>
 	(File path: aSubfolder) exists 
-	    ifFalse: [(File path: aSubfolder) createDirectory]
+	    ifFalse: [repoDir createDirectory: aSubfolder]
     ]
 
     fileOutCategory: aCategory [
