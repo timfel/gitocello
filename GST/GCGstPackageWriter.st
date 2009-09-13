@@ -25,9 +25,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	| subfolder |
 	subfolder := (aClass category asString findBetweenSubStrs: '-') last.
 	^subfolder , Directory pathSeparator asString , aClass name asString 
-	    , $. asString , 
-		    {$s.
-		    $t} asString
+	    , $. asString , FileStream st
     ]
 
     classes [
