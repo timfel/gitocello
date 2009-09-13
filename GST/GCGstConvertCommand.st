@@ -28,9 +28,6 @@ Object subclass: GCGstConvertCommand [
 	    -> '(File path: (FilePath pathFor: ``@arg2))'.
 	'(FileDirectory localNameFor: ``@arg2)' 
 	    -> '(FilePath stripPathFrom: ``@arg2)'.
-	'(``@object directoryExists: ``@arg2)' -> '(File path: ``@arg2) exists'.
-	'(``@object createDirectory: ``@arg2)' 
-	    -> '(File path: ``@arg2) createDirectory'.
 	'(``@object recursiveDelete)' -> '(``@object all remove)'.
 	'(``@object pathName)' -> '(``@object name)'.
 	'(``@object containingDirectory)' -> '(``@object parent)'.
@@ -61,6 +58,8 @@ Object subclass: GCGstConvertCommand [
     ]
 
     GCGstConvertCommand class >> gstBidirectional [
+	"Reverse all bidirectional rules to apply them for squeak -> gst conversion"
+
 	<category: 'gst-to-squeak-rules'>
 	^((self class methodDictionary asSet 
 	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
@@ -74,6 +73,8 @@ Object subclass: GCGstConvertCommand [
     ]
 
     GCGstConvertCommand class >> squeakBidirectional [
+	"Find all bidirectional rules to include them in the conversion"
+
 	<category: 'squeak-to-gst-rules'>
 	^((self class methodDictionary asSet 
 	    select: [:msg | msg methodCategory = 'bidirectional-rules']) 
@@ -101,6 +102,9 @@ Object subclass: GCGstConvertCommand [
 	    -> '(``@object <= ``@arg2)'.
 	'(``@object isZero)' -> '(``@object = 0)'.
 	'FileDirectory dot' -> '$. printString'.
+	'(``@object directoryExists: ``@arg2)' -> '(File path: ``@arg2) exists'.
+	'(``@object createDirectory: ``@arg2)' 
+	    -> '(File path: ``@arg2) createDirectory'.
 	'(``@object union: ``@arg1)' 
 	    -> '(``@object asSet addAll: ``@arg1; yourself)'.
 	'FileStream st' -> '($s printString, $t printString)'.
