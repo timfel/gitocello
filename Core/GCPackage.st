@@ -1,18 +1,27 @@
 Object subclass: GCPackage [
-    | packageClasses lastCommit |
+    | packageName packageClasses lastCommit |
     
     <category: 'Gitocello-Core'>
     <comment: nil>
 
     GCPackage class >> newFor: aPackage [
 	<category: 'instance creation'>
-	| packageInfo |
-	packageInfo := PackageInfo named: aPackage.
 	^(self new)
-	    lastCommit: nil;
-	    packageClasses: ((packageInfo classes asSet)
-			addAll: packageInfo extensionClasses;
-			yourself)
+	    packageName: aPackage;
+	    yourself
+    ]
+
+    classes [
+	"This converts, then sorts the class names, then finds the classes. Expensive, but run basically
+	 only on intialization of the package and for the browser, which is slow anyway"
+
+	<category: 'accessing'>
+	| packageInfo |
+	packageInfo := PackageInfo named: self packageName.
+	^(((packageInfo classes asSet)
+	    addAll: packageInfo extensionClasses;
+	    yourself) collect: [:class | class name asString]) 
+	    asSortedCollection collect: [:className | Smalltalk classNamed: className]
     ]
 
     lastCommit [
@@ -33,6 +42,7 @@ Object subclass: GCPackage [
 	"Answer the value of packageClasses"
 
 	<category: 'accessing'>
+	packageClasses ifNil: [packageClasses := self classes].
 	^packageClasses
     ]
 
@@ -41,6 +51,20 @@ Object subclass: GCPackage [
 
 	<category: 'accessing'>
 	packageClasses := anObject
+    ]
+
+    packageName [
+	"Answer the value of packageName"
+
+	<category: 'accessing'>
+	^packageName
+    ]
+
+    packageName: anObject [
+	"Set the value of packageName"
+
+	<category: 'accessing'>
+	packageName := anObject
     ]
 ]
 

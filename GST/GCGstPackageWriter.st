@@ -122,6 +122,7 @@ I will at some stage be able to properly handle test cases, which will make port
 	    ifFalse: [converter := UTF8TextConverter new].
 	fileName := self repoDir , Directory pathSeparator asString 
 		    , 'package.xml'.
+	File remove: fileName.
 	file := MultiByteFileStream new open: fileName forWrite: true.
 	file ifNil: [self error: 'Cannot open file'].
 	file
