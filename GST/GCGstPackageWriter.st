@@ -30,11 +30,7 @@ I will at some stage be able to properly handle test cases, which will make port
 
     classes [
 	<category: 'stream-writing'>
-	| packageInfo |
-	packageInfo := PackageInfo named: self packageName.
-	^(packageInfo classes asSet)
-	    addAll: packageInfo extensionClasses;
-	    yourself
+	^(GCRegistry at: self packageName) packageClasses
     ]
 
     createPackageXml [

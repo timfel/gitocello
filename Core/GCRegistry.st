@@ -96,6 +96,11 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	^super doesNotUnderstand: aMessage
     ]
 
+    GCRegistry class >> at: aPackage [
+	<category: 'accessing'>
+	^self repositories at: aPackage
+    ]
+
     run: aGitCommand in: aPackage [
 	<category: 'helpers'>
 	self 
@@ -134,7 +139,7 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	<category: 'commands'>
 	(Repositories includesKey: aPackage) 
 	    ifFalse: 
-		[Repositories add: aPackage -> Array new.
+		[Repositories add: aPackage -> (GCPackage newFor: aPackage).
 		self createFilesFor: aPackage.
 		self run: #init in: aPackage asString].
 	self commit: aPackage
@@ -160,6 +165,11 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	git := GCGitWrapper new
     ]
 
+    at: aPackage [
+	<category: 'accessing'>
+	^self repositories at: aPackage
+    ]
+
     repositories [
 	<category: 'accessing'>
 	^Repositories
@@ -171,16 +181,17 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 	<category: 'monticello-helpers'>
 	| cr messages |
 	cr := Character lf asString.
-	messages := ((MCPackage named: aPackage) workingCopy ancestry 
-		    breadthFirstAncestors copyWithoutAll: (self repositories at: aPackage)) 
-		    inject: String new
-		    into: 
-			[:string :next | 
-			string , cr , cr , next date asString , ': ' , next author , cr 
-			    , next message].
-	self repositories at: aPackage
-	    put: (MCPackage named: aPackage) workingCopy ancestry breadthFirstAncestors.
-	^self escapeForBash: messages
+	messages := WriteStream on: (String new: 100).
+	((MCPackage named: aPackage) workingCopy ancestry breadthFirstAncestors 
+	    copyUpTo: (self at: aPackage) lastCommit) do: 
+		    [:next | 
+		    messages 
+			nextPutAll: cr , cr , next date asString , ': ' , next author 
+				, ' from Squeak: ' , next message].
+	(self at: aPackage) 
+	    lastCommit: (MCPackage named: aPackage) workingCopy ancestry ancestors 
+		    first.
+	^self escapeForBash: messages contents
     ]
 
     escapeForBash: aString [
