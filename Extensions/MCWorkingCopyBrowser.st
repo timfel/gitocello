@@ -1,14 +1,4 @@
 
-!MCWorkingCopyBrowser methodsFor: '*gitocello' stamp: 'tfel 9/10/2009 09:20'!
-trackWithGit
-
-	GCRegistry createRepositoryFor: workingCopy package name! !
-
-!MCWorkingCopyBrowser methodsFor: '*gitocello' stamp: 'tfel 9/10/2009 09:24'!
-untrackWithGit
-
-	GCRegistry removeRepositoryFor: workingCopy package name! !
-
 !MCWorkingCopyBrowser methodsFor: '*gitocello-actions-override' stamp: 'TF 5/15/2010 18:00:57.1'!
 saveVersion
 	| repo |
@@ -28,6 +18,16 @@ saveVersion
 		(GCRegistry tracksPackage: workingCopy package)
 			ifTrue: [GCRegistry storeVersion: workingCopy].
 		].! !
+
+!MCWorkingCopyBrowser methodsFor: '*gitocello' stamp: 'tfel 9/10/2009 09:20'!
+trackWithGit
+
+	GCRegistry createRepositoryFor: workingCopy package name! !
+
+!MCWorkingCopyBrowser methodsFor: '*gitocello' stamp: 'tfel 9/10/2009 09:24'!
+untrackWithGit
+
+	GCRegistry removeRepositoryFor: workingCopy package name! !
 
 !MCWorkingCopyBrowser methodsFor: '*gitocello-morphic ui-override' stamp: 'tfel 9/10/2009 09:27'!
 workingCopyListMenu: aMenu
