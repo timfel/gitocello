@@ -14,10 +14,10 @@ add: matchString
 	"Add using matchString"
 	self gitCommand: 'add ', matchString! !
 
-!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/8/2009 20:00'!
+!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 6/14/2010 16:26'!
 commit: commitMsg
 	"Commit changes to the local repository"
-	self gitCommand: 'commit -m "',  commitMsg, '"'! !
+	self gitCommand: 'commit --allow-empty -m "',  commitMsg, '"'! !
 
 !GCGitWrapper methodsFor: 'commands' stamp: 'mh 5/12/2010 17:03'!
 dirChangeCommand
@@ -86,7 +86,7 @@ gitBinaryPath
 gitBinaryPath: aString
 
 	GitBinaryPath := aString.! !
-or: 'preferences' stamp: 'tfel 5/31/2010 15:46:01.724'!
+s' stamp: 'tfel 5/31/2010 15:46:01.724'!
 gitBinaryPath: aString
 
 	GitBinaryPath := aString.! !
