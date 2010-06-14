@@ -180,10 +180,10 @@ repoDir: aDirectory
 		ifFalse: [repoDir := aDirectory pathName]! !
 
 
-!GCGstPackageWriter methodsFor: 'literals' stamp: 'tfel 9/7/2009 20:55'!
+!GCGstPackageWriter methodsFor: 'literals' stamp: 'tfel 6/14/2010 15:52'!
 postfix
 
-	^ '</package>'! !
+	^ '</package>', Character cr asString! !
 
 
 !GCGstPackageWriter methodsFor: 'information-retrieval' stamp: 'tfel 9/7/2009 20:36'!
