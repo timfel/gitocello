@@ -1,65 +1,70 @@
-Object subclass: #GCPackage
-	instanceVariableNames: 'packageName packageClasses lastCommit'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Gitocello-Core'!
+Object subclass: GCPackage [
+    | packageName packageClasses lastCommit |
+    
+    <category: 'Gitocello-Core'>
+    <comment: nil>
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:31'!
-classes
-	"This converts, then sorts the class names, then finds the classes. Expensive, but run basically 
-	only on intialization of the package and for the browser, which is slow anyway"
+    GCPackage class >> newFor: aPackage [
+	<category: 'instance creation'>
+	^(self new)
+	    packageName: aPackage;
+	    yourself
+    ]
+
+    classes [
+	"This converts, then sorts the class names, then finds the classes. Expensive, but run basically
+	 only on intialization of the package and for the browser, which is slow anyway"
+
+	<category: 'accessing'>
 	| packageInfo |
-	packageInfo := (PackageInfo named: self packageName).
-	^ ((packageInfo classes union: packageInfo extensionClasses)
-		collect: [:class | class name asString]) asSortedCollection
-			collect: [:className | Smalltalk classNamed: className]! !
+	packageInfo := PackageInfo named: self packageName.
+	^(((packageInfo classes asSet)
+	    addAll: packageInfo extensionClasses;
+	    yourself) collect: [:class | class name asString]) 
+	    asSortedCollection collect: [:className | Smalltalk classNamed: className]
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 13:00'!
-lastCommit
+    lastCommit [
 	"Answer the value of lastCommit"
 
-	^ lastCommit! !
+	<category: 'accessing'>
+	^lastCommit
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 13:00'!
-lastCommit: anObject
+    lastCommit: anObject [
 	"Set the value of lastCommit"
 
-	lastCommit := anObject! !
+	<category: 'accessing'>
+	lastCommit := anObject
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:25'!
-packageClasses
+    packageClasses [
 	"Answer the value of packageClasses"
 
+	<category: 'accessing'>
 	packageClasses ifNil: [packageClasses := self classes].
-	^ packageClasses! !
+	^packageClasses
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 12:50'!
-packageClasses: anObject
+    packageClasses: anObject [
 	"Set the value of packageClasses"
 
-	packageClasses := anObject! !
+	<category: 'accessing'>
+	packageClasses := anObject
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:23'!
-packageName
+    packageName [
 	"Answer the value of packageName"
 
-	^ packageName! !
+	<category: 'accessing'>
+	^packageName
+    ]
 
-!GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:23'!
-packageName: anObject
+    packageName: anObject [
 	"Set the value of packageName"
 
-	packageName := anObject! !
+	<category: 'accessing'>
+	packageName := anObject
+    ]
+]
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-GCPackage class
-	instanceVariableNames: ''!
-
-!GCPackage class methodsFor: 'instance creation' stamp: 'tfel 9/20/2009 14:24'!
-newFor: aPackage
-
-	^ self new
-		packageName: aPackage;
-		yourself
-! !
