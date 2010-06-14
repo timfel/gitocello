@@ -26,14 +26,12 @@ dirChangeCommand
 		ifFalse: ['cd "', self localPath, '";'].
 		! !
 
-!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 5/31/2010 15:44:47.677'!
+!GCGitWrapper methodsFor: 'commands' stamp: 'tfel 6/14/2010 15:37'!
 gitCommand: aCommandString
 	"Enter the local repository and run the 'git' command with the parameters"
 	| command |
 	command := self dirChangeCommand, ' ', self class gitBinaryPath, ' ', aCommandString.
-	(Smalltalk classNamed: 'OSProcess')
-		ifNil: [self class callout: command]
-		ifNotNilDo: [:class | class waitForCommand: command].! !
+	GCCallout callout: command.! !
 
 !GCGitWrapper methodsFor: 'commands' stamp: 'tfel 9/7/2009 01:03'!
 init
@@ -85,6 +83,10 @@ gitBinaryPath
 ! !
 
 !GCGitWrapper class methodsFor: 'preferences' stamp: 'tfel 5/31/2010 15:46:01.724'!
+gitBinaryPath: aString
+
+	GitBinaryPath := aString.! !
+or: 'preferences' stamp: 'tfel 5/31/2010 15:46:01.724'!
 gitBinaryPath: aString
 
 	GitBinaryPath := aString.! !

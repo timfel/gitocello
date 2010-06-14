@@ -1,6 +1,6 @@
 Object subclass: #GCGstPackageWriter
 	instanceVariableNames: 'packageName packageXmlStream newline repoDir'
-	classVariableNames: ''
+	classVariableNames: 'WritePackageXml'
 	poolDictionaries: ''
 	category: 'Gitocello-GST'!
 !GCGstPackageWriter commentStamp: 'tfel 9/8/2009 20:24' prior: 0!
@@ -102,22 +102,23 @@ tests
 	self packageXmlStream nextPutAll: '</test>', newline asString.! !
 
 
-!GCGstPackageWriter methodsFor: 'fileOut' stamp: 'tfel 9/20/2009 15:22'!
+!GCGstPackageWriter methodsFor: 'fileOut' stamp: 'tfel 6/14/2010 16:05'!
 fileOutPackageXml
 
 	| fileName converter file |
-	self createPackageXml.
-	self packageXmlStream contents isAsciiString 
-		ifTrue: [converter := MacRomanTextConverter new]
-		ifFalse: [converter := UTF8TextConverter new].
-	fileName := self repoDir, FileDirectory pathNameDelimiter asString, 'package.xml'.
-	FileDirectory deleteFilePath: fileName.
-	file := MultiByteFileStream new open: fileName forWrite: true.
-	file 	ifNil: [self error: 'Cannot open file'].
-	file text;
-		converter: converter;
-		nextPutAll: packageXmlStream contents;
-		close! !
+	self class writePackageXml ifTrue: [
+		self createPackageXml.
+		self packageXmlStream contents isAsciiString 
+			ifTrue: [converter := MacRomanTextConverter new]
+			ifFalse: [converter := UTF8TextConverter new].
+		fileName := self repoDir, FileDirectory pathNameDelimiter asString, 'package.xml'.
+		FileDirectory deleteFilePath: fileName.
+		file := MultiByteFileStream new open: fileName forWrite: true.
+		file 	ifNil: [self error: 'Cannot open file'].
+		file text;
+			converter: converter;
+			nextPutAll: packageXmlStream contents;
+			close].! !
 
 
 !GCGstPackageWriter methodsFor: 'initialize-release' stamp: 'tfel 9/7/2009 21:32'!
@@ -194,6 +195,23 @@ requiredPackages
 
 GCGstPackageWriter class
 	instanceVariableNames: ''!
+
+!GCGstPackageWriter class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:42'!
+writePackageXml
+
+	<preference: 'Write Gnu Smalltalk package.xml files '
+		category: 'Gitocello'
+		description: ''
+		type: #Boolean>
+	^ WritePackageXml ifNil: [WritePackageXml := false]
+! !
+
+!GCGstPackageWriter class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:42'!
+writePackageXml: aBoolean
+
+	WritePackageXml := aBoolean
+! !
+
 
 !GCGstPackageWriter class methodsFor: 'instance creation' stamp: 'tfel 4/25/2010 16:52:37.173'!
 newFor: aPackage

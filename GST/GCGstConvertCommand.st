@@ -1,6 +1,6 @@
 Object subclass: #GCGstConvertCommand
 	instanceVariableNames: ''
-	classVariableNames: ''
+	classVariableNames: 'GstConvertBinaryPath RunGstConvert'
 	poolDictionaries: ''
 	category: 'Gitocello-GST'!
 !GCGstConvertCommand commentStamp: 'tfel 9/10/2009 11:48' prior: 0!
@@ -98,19 +98,16 @@ writeRules: someRules to: aStream
 			nextPut: Character space]! !
 
 
-!GCGstConvertCommand class methodsFor: 'actions' stamp: 'TF 5/9/2010 15:17'!
+!GCGstConvertCommand class methodsFor: 'actions' stamp: 'tfel 6/14/2010 16:06'!
 convert: aFilepath from: input to: output
 
 	| filename cmdline |
-	cmdline := self commandLineFor: aFilepath from: input to: output.
-	(Smalltalk classNamed: 'OSProcess') 
-		ifNil: [Transcript show: cmdline; cr.]
-		ifNotNilDo: [:class |
-			class waitForCommand: (cmdline).
-			filename := FileDirectory localNameFor: aFilepath.
-			FileDirectory deleteFilePath: aFilepath.
-			(FileDirectory forFileName: aFilepath) 
-				rename: filename, '.converted' toBe: filename].! !
+	self runGstConvert ifTrue: [
+		cmdline := self commandLineFor: aFilepath from: input to: output.
+		GCCallout callout: cmdline.
+		filename := FileDirectory localNameFor: aFilepath.
+		FileDirectory deleteFilePath: aFilepath.
+		(FileDirectory forFileName: aFilepath) rename: filename, '.converted' toBe: filename].! !
 
 
 !GCGstConvertCommand class methodsFor: 'gst-to-squeak-rules' stamp: 'tfel 9/14/2009 00:52'!
@@ -169,3 +166,36 @@ squeakStatements
 
 	^ {	'(``@object and: ``@arg1 and: ``@arg2)' -> '((``@object and: ``@arg1) and: ``@arg2)' .
 	    }! !
+
+
+!GCGstConvertCommand class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:45'!
+gstConvertBinaryPath
+
+	<preference: 'Path to gst-convert binary'
+		category: 'Gitocello'
+		description: 'The gst-convert tool may be used to convert between Squeak and Gnu Smalltalk'
+		type: #String>
+	^ GstConvertBinaryPath ifNil: [GstConvertBinaryPath := 'gst-convert']
+! !
+
+!GCGstConvertCommand class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:49'!
+gstConvertBinaryPath: aString
+
+	GstConvertBinaryPath := aString.
+! !
+
+!GCGstConvertCommand class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:47'!
+runGstConvert
+
+	<preference: 'Convert to Gnu Smalltalk'
+		category: 'Gitocello'
+		description: 'Convert  file-out to Gnu Smalltalk syntax using gst-convert'
+		type: #Boolean>
+	^ RunGstConvert ifNil: [RunGstConvert := false]
+! !
+
+!GCGstConvertCommand class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:47'!
+runGstConvert: aBoolean
+
+	RunGstConvert := aBoolean.
+! !
