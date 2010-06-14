@@ -34,8 +34,13 @@ I will at some stage be able to properly handle test cases, which will make port
 
 	<category: 'stream-writing'>
 	| subfolder |
-	subfolder := (aClass theNonMetaClass category asString 
-		    findBetweenSubStrs: '-') last.
+	subfolder := ((PackageInfo 
+		    named: (aClass theNonMetaClass category asString findBetweenSubStrs: '-') 
+			    first) 
+			classesAndMetaClasses includes: aClass) 
+		    ifTrue: 
+			[(aClass theNonMetaClass category asString findBetweenSubStrs: '-') last]
+		    ifFalse: [GCMapper extensionsFolder].
 	^subfolder , Directory pathSeparator asString , aClass name asString 
 	    , $. printString , ($s printString , $t printString)
     ]

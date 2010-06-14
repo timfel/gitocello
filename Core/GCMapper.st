@@ -28,6 +28,11 @@ become
 	    yourself
     ]
 
+    GCMapper class >> extensionsFolder [
+	<category: 'accessing'>
+	^'Extensions'
+    ]
+
     createFolder: aSubfolder [
 	<category: 'fileOut'>
 	(File path: aSubfolder) exists 
@@ -64,7 +69,7 @@ become
 
 	<category: 'fileOut'>
 	| dict |
-	self createFolder: 'Extensions'.
+	self createFolder: self class extensionsFolder.
 	dict := Dictionary new.
 	extensionMethods do: 
 		[:each | 
