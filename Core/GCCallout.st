@@ -34,10 +34,10 @@ apiWindowsCallout: aCommand
 	<apicall: long 'system' ( char* ) module: 'msvcrt.dll'>
 	^ self externalCallFailed! !
 
-!GCCallout class methodsFor: 'callout' stamp: 'tfel 6/14/2010 15:36'!
+!GCCallout class methodsFor: 'callout' stamp: 'tfel 6/14/2010 16:21'!
 callout: aCommand
 
-	(Smalltalk classNamed: 'OSProcess')
+	^ (Smalltalk classNamed: 'OSProcess')
 		ifNil: [(self calloutDict 
 				at: SmalltalkImage current platformName asLowercase
 				ifAbsent: [[:cmd | self error: 'Callouts not implemented for your platform!!']]) 
