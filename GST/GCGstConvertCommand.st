@@ -62,30 +62,6 @@ statements
 	    }! !
 
 
-!GCGstConvertCommand class methodsFor: 'command-building' stamp: 'tfel 11/16/2009 20:36'!
-commandLineFor: aFilepath from: input to: output
-	"see http://smalltalk.gnu.org/faq/169 for info on gst-convert command-line"
-	| stream |
-	stream := WriteStream on: (String new: 1000).
-	stream nextPutAll: 'gst-convert -f ', input, ' '."-F ', output, ' '."
-	(self allMethodsIn: input, '-to-', output, '-rules')
-			do: [:method | self writeRules: (self perform: method) to: stream].
-	self 
-		flip: (self perform: (input, 'Newline') asSymbol) 
-		with: (self perform: (output, 'Newline') asSymbol)
-		on: aFilepath in: stream.
-	^ stream contents
-! !
-
-!GCGstConvertCommand class methodsFor: 'command-building' stamp: 'tfel 9/13/2009 13:22'!
-flip: aString with: anotherString on: aFilepath in: aStream
-
-	aStream 
-		nextPutAll: '"', aFilepath, '"';
-		nextPutAll: ' - | tr ', aString, ' ', anotherString, ' > ';
-		nextPutAll: '"', aFilepath, '.converted"'
-! !
-
 !GCGstConvertCommand class methodsFor: 'command-building' stamp: 'tfel 9/13/2009 19:59'!
 writeRules: someRules to: aStream
 
@@ -98,16 +74,11 @@ writeRules: someRules to: aStream
 			nextPut: Character space]! !
 
 
-!GCGstConvertCommand class methodsFor: 'actions' stamp: 'tfel 6/14/2010 16:06'!
+!GCGstConvertCommand class methodsFor: 'actions' stamp: 'tfel 6/14/2010 17:32'!
 convert: aFilepath from: input to: output
 
-	| filename cmdline |
 	self runGstConvert ifTrue: [
-		cmdline := self commandLineFor: aFilepath from: input to: output.
-		GCCallout callout: cmdline.
-		filename := FileDirectory localNameFor: aFilepath.
-		FileDirectory deleteFilePath: aFilepath.
-		(FileDirectory forFileName: aFilepath) rename: filename, '.converted' toBe: filename].! !
+		self basicConvert: aFilepath from: input to: output].! !
 
 
 !GCGstConvertCommand class methodsFor: 'gst-to-squeak-rules' stamp: 'tfel 9/14/2009 00:52'!
@@ -166,6 +137,33 @@ squeakStatements
 
 	^ {	'(``@object and: ``@arg1 and: ``@arg2)' -> '((``@object and: ``@arg1) and: ``@arg2)' .
 	    }! !
+
+
+!GCGstConvertCommand class methodsFor: 'callouts' stamp: 'tfel 6/14/2010 17:36'!
+basicConvert: aFilepath from: input to: output
+	"see http://smalltalk.gnu.org/faq/169 for info on gst-convert command-line"
+	| stream filename |
+	stream := WriteStream on: (String new: 1000).
+	stream nextPutAll: self gstConvertBinaryPath, ' -f ', input, ' '."-F ', output, ' '."
+	(self allMethodsIn: input, '-to-', output, '-rules')
+			do: [:method | self writeRules: (self perform: method) to: stream].
+	stream nextPutAll: ' "', aFilepath, '" "', aFilepath, '.converted"'.
+	GCCallout callout: stream contents.
+	filename := FileDirectory localNameFor: aFilepath.
+			FileDirectory deleteFilePath: aFilepath.
+			(FileDirectory forFileName: aFilepath) 
+				rename: filename, '.converted' toBe: filename.! !
+
+!GCGstConvertCommand class methodsFor: 'callouts' stamp: 'tfel 6/14/2010 17:18'!
+flip: aString with: anotherString on: aFilepath
+
+	| filename |
+	(GCCallout callout: 'tr ', aString, ' ', anotherString, ' < "', aFilepath, 
+		'" > "', aFilepath, '.converted"') = 0 ifTrue: [
+			filename := FileDirectory localNameFor: aFilepath.
+			FileDirectory deleteFilePath: aFilepath.
+			(FileDirectory forFileName: aFilepath) 
+				rename: filename, '.converted' toBe: filename].! !
 
 
 !GCGstConvertCommand class methodsFor: 'preferences' stamp: 'tfel 6/14/2010 15:45'!
