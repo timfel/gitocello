@@ -1,5 +1,5 @@
 Object subclass: GCGstPackageWriter [
-    | packageName packageXmlStream newline repoDir |
+    | package packageXmlStream newline repoDir |
     
     <category: 'Gitocello-GST'>
     <comment: 'I am very specific to GNU Smalltalk integration, as I write the package.xml file required to create GNU Smalltalk *.star format package files.
@@ -25,7 +25,7 @@ I will at some stage be able to properly handle test cases, which will make port
     GCGstPackageWriter class >> newFor: aPackage [
 	<category: 'instance creation'>
 	^(self new)
-	    packageName: aPackage;
+	    package: aPackage;
 	    yourself
     ]
 
@@ -34,10 +34,10 @@ I will at some stage be able to properly handle test cases, which will make port
 
 	<category: 'stream-writing'>
 	| subfolder |
-	subfolder := ((PackageInfo 
+	subfolder := (PackageInfo 
 		    named: (aClass theNonMetaClass category asString findBetweenSubStrs: '-') 
 			    first) 
-			classesAndMetaClasses includes: aClass) 
+			name = self packageName 
 		    ifTrue: 
 			[(aClass theNonMetaClass category asString findBetweenSubStrs: '-') last]
 		    ifFalse: [GCMapper extensionsFolder].
@@ -75,7 +75,7 @@ I will at some stage be able to properly handle test cases, which will make port
 
     files [
 	<category: 'stream-writing'>
-	self classes 
+	self packageClasses 
 	    do: [:class | self putAttribute: 'file' with: (self classFilePathFor: class)]
     ]
 
@@ -172,18 +172,30 @@ I will at some stage be able to properly handle test cases, which will make port
 	newline := anObject
     ]
 
-    packageName [
+    package [
 	"Answer the value of packageName"
 
 	<category: 'accessing'>
-	^packageName
+	^package
     ]
 
-    packageName: anObject [
+    package: anObject [
 	"Set the value of packageName"
 
 	<category: 'accessing'>
-	packageName := anObject
+	package := anObject
+    ]
+
+    packageClasses [
+	"Answer the value of packageName"
+
+	<category: 'accessing'>
+	^package packageClasses
+    ]
+
+    packageName [
+	<category: 'accessing'>
+	^self package packageName
     ]
 
     packageXmlStream [

@@ -1,5 +1,5 @@
 Object subclass: GCMapper [
-    | systemOrganizer packageName repoDir files |
+    | systemOrganizer repoDir files package |
     
     <category: 'Gitocello-Core'>
     <comment: 'I am used to file out a package to a repository. I do not care at all what kind of repository. 
@@ -23,7 +23,7 @@ become
     GCMapper class >> newFor: aPackage [
 	<category: 'instance creation'>
 	^(self basicNew)
-	    packageName: aPackage;
+	    package: aPackage;
 	    initialize;
 	    yourself
     ]
@@ -132,18 +132,19 @@ become
 	^files
     ]
 
-    packageName [
-	"Answer the value of packageName"
-
+    package [
 	<category: 'accessing'>
-	^packageName
+	^package
     ]
 
-    packageName: anObject [
-	"Set the value of packageName"
-
+    package: anObject [
 	<category: 'accessing'>
-	packageName := anObject
+	package := anObject
+    ]
+
+    packageName [
+	<category: 'accessing'>
+	^package packageName
     ]
 
     repoDir [

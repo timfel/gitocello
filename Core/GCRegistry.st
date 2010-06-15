@@ -216,12 +216,11 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
     ]
 
     createFilesFor: aPackage [
-	"Create and convert source to Gnu Smalltalk syntax. Als create a package.xml"
-
 	<category: 'fileOut'>
-	| files |
-	files := (GCMapper newFor: aPackage)
-		    repoDir: RepositoryRoot / aPackage;
+	| files pkg |
+	pkg := aPackage isString ifTrue: [self at: aPackage] ifFalse: [aPackage].
+	files := (GCMapper newFor: pkg)
+		    repoDir: RepositoryRoot / pkg packageName;
 		    fileOutPackage;
 		    files.
 	files do: 
@@ -230,8 +229,8 @@ I am well aware of the conversion to Gnu Smalltalk going on here, and I call the
 		    convert: file
 		    from: 'squeak'
 		    to: 'gst'].
-	(GCGstPackageWriter newFor: aPackage)
-	    repoDir: RepositoryRoot / aPackage;
+	(GCGstPackageWriter newFor: pkg)
+	    repoDir: RepositoryRoot / pkg packageName;
 	    fileOutPackageXml
     ]
 
