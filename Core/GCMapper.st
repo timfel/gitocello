@@ -45,9 +45,11 @@ become
 	<category: 'fileOut'>
 	| subfolder |
 	subfolder := (aCategory asString findBetweenSubStrs: '-') last.
-	self createFolder: subfolder.
-	(systemOrganizer superclassOrder: aCategory) 
-	    do: [:each | self fileOutClass: each in: (repoDir / subfolder) name]
+	(self package packageClasses 
+	    intersection: (systemOrganizer superclassOrder: aCategory)) ifNotEmptyDo: 
+		    [:arr | 
+		    self createFolder: subfolder.
+		    arr do: [:each | self fileOutClass: each in: (repoDir / subfolder) name]]
     ]
 
     fileOutClass: aClass in: aPath [
@@ -98,10 +100,12 @@ become
 	<category: 'fileOut'>
 	| packageInfo |
 	packageInfo := PackageInfo named: self packageName.
-	packageInfo systemCategories 
-	    do: [:category | self fileOutCategory: category].
-	packageInfo extensionMethods 
-	    ifNotEmpty: [self fileOutExtensions: packageInfo extensionMethods]
+	(packageInfo classes intersection: self package packageClasses) 
+	    collect: [:cls | cls category]
+	    thenDo: [:category | self fileOutCategory: category].
+	(packageInfo extensionMethods 
+	    select: [:m | self package packageClasses includes: m actualClass]) 
+		ifNotEmptyDo: [:methods | self fileOutExtensions: methods]
     ]
 
     writeSourceCodeFrom: aStream to: aFile [
