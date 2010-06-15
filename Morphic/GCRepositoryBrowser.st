@@ -1,177 +1,205 @@
 SystemWindow subclass: GCRepositoryBrowser [
-    | repositoryIndex selectedClassIndex classList selectedClasses |
+    | repositoryIndex selectedClassIndex classList selectedClasses classListMorph packageListMorph |
     
     <comment: nil>
     <category: 'Gitocello-Morphic'>
 
     GCRepositoryBrowser class >> open [
+	<category: 'instance creation'>
 	(self new)
 	    createWindow;
 	    openInWorld
     ]
 
-    classList [
-	classList ifNil: 
-		[classList := GCRegistry repositories ifEmpty: [#()]
-			    ifNotEmpty: [(GCRegistry at: self selectedRepository) classes]].
-	^classList
-    ]
-
-    classListMap [
-	^self classList collect: [:class | self packageClasses includes: class]
-    ]
-
-    contents [
-	^self selectedRepository
+    classListMorph [
+	<category: 'user interface'>
+	^classListMorph ifNil: 
+		[classListMorph := (PluggableListMorphOfMany 
+			    on: self
+			    list: #availableClasses
+			    primarySelection: #selectedClassIndex
+			    changePrimarySelection: #selectedClassIndex:
+			    listSelection: #selectedClassesAt:
+			    changeListSelection: #selectedClassesAt:put:
+			    menu: nil)
+			    color: self defaultBackgroundColor;
+			    yourself]
     ]
 
     createWindow [
-	| packageList classList repositoryUrlEntry fileOutCommand |
-	fileOutCommand := PluggableButtonMorph 
-		    on: self
-		    getState: nil
-		    action: #fileOut
-		    label: #fileOutButtonString.
-	repositoryUrlEntry := (PluggableTextMorph 
-		    on: self
-		    text: #repositoryRoot
-		    accept: #repositoryRoot:
-		    readSelection: nil
-		    menu: #annotationPaneMenu:shifted:)
-		    hideScrollBarsIndefinitely;
-		    yourself.
-	(packageList := PluggableListMorph new) 
-	    on: self
-	    list: #repositoryList
-	    selected: #repositoryIndex
-	    changeSelected: #repositoryIndex:
-	    menu: #memberMenu:shifted:
-	    keystroke: nil.
-	(classList := PluggableListMorphOfMany new) 
-	    on: self
-	    list: #classList
-	    primarySelection: #selectedClassIndex
-	    changePrimarySelection: #selectedClassIndex:
-	    listSelection: #selectedClassesAt:
-	    changeListSelection: #selectedClassesAt:put:
-	    menu: #classMenu
-	    keystroke: nil.
-	repositoryUrlEntry color: self defaultBackgroundColor.
-	classList color: self defaultBackgroundColor.
-	packageList color: self defaultBackgroundColor.
-	self addMorph: repositoryUrlEntry frame: (0 @ 0.01 corner: 0.8 @ 0.1).
-	self addMorph: fileOutCommand frame: (0.8 @ 0.01 corner: 1.0 @ 0.1).
-	self addMorph: packageList frame: (0 @ 0.1 corner: 0.5 @ 1.0).
-	self addMorph: classList frame: (0.5 @ 0.1 corner: 1.0 @ 1.0).
-	self setLabel: 'Package Git Repository Mirrors'
-    ]
-
-    fileOut [
-	GCRegistry createFilesFor: self selectedRepository
-    ]
-
-    initialize [
-	super initialize.
+	<category: 'user interface'>
 	self
-	    repositoryIndex: 1;
-	    selectedClassIndex: 1;
-	    selectedClasses: self classListMap
+	    addMorph: self repositoryUrlField frame: (0 @ 0.01 corner: 0.8 @ 0.1);
+	    addMorph: self syncButton frame: (0.8 @ 0.01 corner: 1.0 @ 0.1);
+	    addMorph: self packageListMorph frame: (0 @ 0.1 corner: 0.5 @ 1.0);
+	    addMorph: self classListMorph frame: (0.5 @ 0.1 corner: 1.0 @ 1.0);
+	    setLabel: 'Package Git Repository Mirrors'
+    ]
+
+    packageListMorph [
+	<category: 'user interface'>
+	^packageListMorph ifNil: 
+		[packageListMorph := (PluggableListMorph 
+			    on: self
+			    list: #repositoryList
+			    selected: #selectedRepositoryIndex
+			    changeSelected: #selectedRepositoryIndex:)
+			    color: self defaultBackgroundColor;
+			    yourself]
+    ]
+
+    repositoryUrlField [
+	<category: 'user interface'>
+	^(PluggableTextMorph 
+	    on: self
+	    text: #repositoryRootPath
+	    accept: #repositoryRootPath:)
+	    hideScrollBarsIndefinitely;
+	    color: self defaultBackgroundColor;
+	    yourself
+    ]
+
+    syncButton [
+	<category: 'user interface'>
+	^PluggableButtonMorph 
+	    on: self
+	    getState: #syncButtonOn
+	    action: #syncButtonAction
+	    label: #syncButtonString
     ]
 
     repositoryList [
+	<category: 'accessing'>
 	^GCRegistry repositories keys asOrderedCollection
     ]
 
-    selectedClassesAt: anIndex [
-	^selectedClasses at: anIndex
-    ]
-
-    selectedClassesAt: anIndex put: aValue [
-	selectedClasses at: anIndex put: aValue = true.
-	self
-	    changed: #selectedClassIndex;
-	    updatePackageClasses
-    ]
-
     selectedRepository [
-	^self repositoryList at: self repositoryIndex
-    ]
-
-    classList: anObject [
-	"Set the value of classList"
-
 	<category: 'accessing'>
-	classList := anObject
+	^self repositoryList at: self selectedRepositoryIndex
     ]
 
-    fileOutButtonString [
-	<category: 'accessing'>
-	^'Sync repository'
-    ]
-
-    packageClasses [
-	<category: 'accessing'>
-	^GCRegistry repositories ifEmpty: [#()]
-	    ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses]
-    ]
-
-    repositoryIndex [
+    selectedRepositoryIndex [
 	"Answer the value of repositoryIndex"
 
 	<category: 'accessing'>
 	^repositoryIndex
     ]
 
-    repositoryIndex: anObject [
+    selectedRepositoryIndex: anObject [
 	"Set the value of repositoryIndex"
 
 	<category: 'accessing'>
 	repositoryIndex := anObject.
-	classList := nil
+	classList := nil.
+	self
+	    selectedClassIndex: 1;
+	    selectedClasses: self currentlySelectedClasses;
+	    changed: #selectedRepositoryIndex;
+	    changed: #selectedClassesAt:;
+	    changed: #availableClasses
     ]
 
-    repositoryRoot [
+    updatePackageClasses [
 	<category: 'accessing'>
+	(GCRegistry at: self selectedRepository) 
+	    packageClasses: (self availableClasses 
+		    select: [:class | self selectedClasses at: (self availableClasses indexOf: class)])
+    ]
+
+    repositoryRootPath [
+	<category: 'accessing-registry-configuration'>
 	^GCRegistry repositoryRoot name
     ]
 
-    repositoryRoot: aString [
-	<category: 'accessing'>
+    repositoryRootPath: aString [
+	<category: 'accessing-registry-configuration'>
 	^GCRegistry repositoryRoot: aString
+    ]
+
+    syncButtonAction [
+	<category: 'accessing-buttons'>
+	GCRegistry createFilesFor: self selectedRepository
+    ]
+
+    syncButtonOn [
+	<category: 'accessing-buttons'>
+	^GCRegistry repositories isEmpty not
+    ]
+
+    syncButtonString [
+	<category: 'accessing-buttons'>
+	^'Sync repository'
+    ]
+
+    availableClasses [
+	<category: 'accessing-package-configuration'>
+	classList ifNil: 
+		[classList := GCRegistry repositories ifEmpty: [#()]
+			    ifNotEmpty: [(GCRegistry at: self selectedRepository) classes]].
+	^classList
+    ]
+
+    currentlySelectedClasses [
+	<category: 'accessing-package-configuration'>
+	^self availableClasses collect: [:cls | self packageClasses includes: cls]
+    ]
+
+    packageClasses [
+	<category: 'accessing-package-configuration'>
+	^GCRegistry repositories ifEmpty: [#()]
+	    ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses]
     ]
 
     selectedClassIndex [
 	"Answer the value of selectedClassIndex"
 
-	<category: 'accessing'>
+	<category: 'accessing-package-configuration'>
 	^selectedClassIndex
     ]
 
     selectedClassIndex: anObject [
 	"Set the value of selectedClassIndex"
 
-	<category: 'accessing'>
-	selectedClassIndex := anObject
+	<category: 'accessing-package-configuration'>
+	selectedClassIndex := anObject.
+	self changed: #selectedClassIndex
     ]
 
     selectedClasses [
 	"Answer the value of selectedClasses"
 
-	<category: 'accessing'>
+	<category: 'accessing-package-configuration'>
 	^selectedClasses
     ]
 
     selectedClasses: anObject [
 	"Set the value of selectedClasses"
 
-	<category: 'accessing'>
+	<category: 'accessing-package-configuration'>
 	selectedClasses := anObject
     ]
 
-    updatePackageClasses [
-	<category: 'accessing'>
-	(GCRegistry at: self selectedRepository) packageClasses: (self classList 
-		    select: [:class | self selectedClasses at: (self classList indexOf: class)])
+    selectedClassesAt: anIndex [
+	<category: 'accessing-package-configuration'>
+	^selectedClasses at: anIndex
+    ]
+
+    selectedClassesAt: anIndex put: aValue [
+	<category: 'accessing-package-configuration'>
+	selectedClasses at: anIndex put: aValue = true.
+	self
+	    changed: #selectedClassIndex;
+	    changed: #availableClasses;
+	    updatePackageClasses
+    ]
+
+    initialize [
+	<category: 'initialization'>
+	self
+	    selectedRepositoryIndex: 1;
+	    selectedClassIndex: 1;
+	    selectedClasses: self currentlySelectedClasses.
+	super initialize
     ]
 ]
 
