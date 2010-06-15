@@ -13,7 +13,7 @@
 <filein>Core/GCPackage.st</filein>
 <filein>Core/GCRegistry.st</filein>
 <filein>Morphic/GCRepositoryBrowser.st</filein>
-<filein>UI/MCWorkingCopyBrowser.st</filein>
+<filein>Extensions/MCWorkingCopyBrowser.st</filein>
 <file>Core/GCCallout.st</file>
 <file>Core/GCGitWrapper.st</file>
 <file>GST/GCGstConvertCommand.st</file>
@@ -22,5 +22,5 @@
 <file>Core/GCPackage.st</file>
 <file>Core/GCRegistry.st</file>
 <file>Morphic/GCRepositoryBrowser.st</file>
-<file>UI/MCWorkingCopyBrowser.st</file>
+<file>Extensions/MCWorkingCopyBrowser.st</file>
 </package>
