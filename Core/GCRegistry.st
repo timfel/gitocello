@@ -85,7 +85,7 @@ removeRepositoryFor: aPackage
 	Repositories removeKey: aPackage ifAbsent: []! !
 
 
-!GCRegistry methodsFor: 'monticello-helpers' stamp: 'tfel 5/19/2011 12:08:00.163'!
+!GCRegistry methodsFor: 'monticello-helpers' stamp: 'tfel 5/19/2011 12:09:40.006'!
 commitMessagesFor: aPackage
 	"Creates a git-commit-msg from the non-commited Monticello versions"
 	| messages ancestors |
@@ -95,7 +95,7 @@ commitMessagesFor: aPackage
 	(ancestors size > 1 and: [self confirm: 'There are ', ancestors size, ' commits difference between the image and the Git repository. Should I commit all messages as one?'])
 		ifTrue: [messages := self commitMessagesForAncestors: ancestors]
 		ifFalse: [messages := self commitMessagesForAncestors:
-				(ancestors ifEmpty: {} ifNotEmpty: {ancestors at: 1})].
+				(ancestors ifEmpty: [{}] ifNotEmpty: [{ancestors at: 1}])].
 	(self at: aPackage)
 		lastCommit: ((MCPackage named: aPackage) workingCopy ancestry ancestors 
 			ifEmpty: [nil]
