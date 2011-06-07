@@ -23,7 +23,7 @@ repositories
 	^ Repositories! !
 
 
-!GCRegistry methodsFor: 'commands' stamp: 'tfel 5/17/2011 15:01:32.372'!
+!GCRegistry methodsFor: 'commands' stamp: 'tfel 6/7/2011 15:08:37.292'!
 commit: aPackage
 	"This is part of the class interface - try not to break it"
 	| lastCommit ancestors wc |
@@ -34,6 +34,7 @@ commit: aPackage
 				title: 'Please choose how far back you want to load and commit packages for import')].
 	lastCommit ifNil: [^ self].
 	ancestors := (wc ancestry allAncestorsOnPathTo: lastCommit) reverse.
+	SystemChangeNotifier uniqueInstance doSilently: [
 	ancestors
 		do: [:ancestor |
 			(wc repositoryGroup versionWithInfo: ancestor)
@@ -50,7 +51,7 @@ commit: aPackage
 								run: #commit:
 									in: aPackage asString
 									with: (Array with: (self commitMessagesFor: aPackage)) ]]
-		displayingProgress: [:ancestor | 'Commiting ', ancestor name].
+		displayingProgress: [:ancestor | 'Commiting ', ancestor name]].
 ! !
 
 !GCRegistry methodsFor: 'commands' stamp: 'tfel 9/20/2009 13:02'!
