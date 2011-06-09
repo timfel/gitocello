@@ -104,15 +104,15 @@ commitMessagesFor: aPackage
 	^ self escapeForBash: messages contents
 		! !
 
-!GCRegistry methodsFor: 'monticello-helpers' stamp: 'tfel 5/19/2011 12:04:50.313'!
+!GCRegistry methodsFor: 'monticello-helpers' stamp: 'tfel 6/9/2011 14:21:51.239'!
 commitMessagesForAncestors: aCollection
 	"Creates a git-commit-msg from the non-commited Monticello versions"
-	| cr messages |
-	cr := Character lf asString.
+	| messages |
 	messages := WriteStream on: (String new: 100).
-	aCollection do: [:next |
-					messages nextPutAll: cr, cr, next date asString, ': ', 
-						next author, ' from Squeak: ', next message].
+	aCollection do: [:next | messages
+								nextPutAll: self message;
+								nextPutAll: self summaryHeader;
+								cr; cr].
 	^ messages contents
 ! !
 
@@ -272,6 +272,10 @@ tracksPackage: aPackageNameOrMCPackage
 
 	^ (self repositories keys includes: aPackageNameOrMCPackage)
 		or: [self repositories keys includes: aPackageNameOrMCPackage name]! !
+
+
+GCRegistry initialize!
+eOrMCPackage name]! !
 
 
 GCRegistry initialize!
