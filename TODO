@@ -1,7 +1,5 @@
 - Automatic remote repository creation and integration
 - Allow git-only commits from squeak
-- Configurability
-- Hook needs to handle multiple commit messages
 - Hook re-write in gst?
 - Squeak-Convert tool (gst-convert does that, needs integrating)
 - Monticello Browser integration (Partially done ... yellow-click on the package)
