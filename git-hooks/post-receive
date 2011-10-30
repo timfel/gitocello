@@ -52,7 +52,7 @@ for i in *; do
       folders="$folders $i"
    fi
 done
-# create categories as necessary 
+# create categories as necessary
 for i in $folders; do
    echo "SystemOrganization addCategory: #'${packageName}-${i}'!" >> $dir/snapshot/source.st
 done
@@ -71,7 +71,7 @@ bash -c "$(gst -f git-hooks/gst2squeak.st)"
 mv source.st.converted $dir/snapshot/source.st
 rm source.st
 
-# Zip them up (Monticello is just Zip), put the pkg into the packageCache 
+# Zip them up (Monticello is just Zip), put the pkg into the packageCache
 # and remove the temporary directory
 cd $dir
 zip "${dir}.mcz" * snapshot/*

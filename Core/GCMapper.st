@@ -4,7 +4,7 @@ Object subclass: #GCMapper
 	poolDictionaries: ''
 	category: 'Gitocello-Core'!
 !GCMapper commentStamp: 'tfel 9/10/2009 11:56' prior: 0!
-I am used to file out a package to a repository. I do not care at all what kind of repository. 
+I am used to file out a package to a repository. I do not care at all what kind of repository.
 'repoDir' and 'packageName' are the only options that should be set on me.
 You can use my 'files' field to find out which files I have filed out during my lifetime.
 
@@ -35,9 +35,9 @@ fileOutCategory: aCategory
 	| subfolder |
 	subfolder := (aCategory asString findBetweenSubStrs: '-') last.
 	self createFolder: subfolder.
-	(systemOrganizer superclassOrder: aCategory) do: [:each | 
-		self 
-			fileOutClass: each 
+	(systemOrganizer superclassOrder: aCategory) do: [:each |
+		self
+			fileOutClass: each
 			in: (repoDir directoryNamed: subfolder) pathName]! !
 
 !GCMapper methodsFor: 'fileOut' stamp: 'tfel 9/10/2009 11:53'!
@@ -55,16 +55,16 @@ fileOutExtensions: extensionMethods
 	| dict |
 	self createFolder: 'Extensions'.
 	dict := Dictionary new.
-	extensionMethods do: [:each | 
+	extensionMethods do: [:each |
 		dict at: each classSymbol ifAbsentPut: OrderedCollection new.
 		(dict at: each classSymbol) add: each methodSymbol].
 	dict keysDo: [:key || stream file |
 		stream := WriteStream on: (String new: 1000).
-		file := (repoDir directoryNamed: 'Extensions') pathName, 
-				FileDirectory pathNameDelimiter asString, 
+		file := (repoDir directoryNamed: 'Extensions') pathName,
+				FileDirectory pathNameDelimiter asString,
 				key asString.
 		(dict at: key) do: [:method |
-			(Smalltalk classNamed: key) 
+			(Smalltalk classNamed: key)
 				printMethodChunk: method withPreamble: true
 				on: stream moveSource: false toFile: 0].
 		self writeSourceCodeFrom: stream to: file]! !
@@ -75,7 +75,7 @@ fileOutPackage
 	| packageInfo |
 	packageInfo := PackageInfo named: self packageName.
 	packageInfo systemCategories do: [:category | self fileOutCategory: category].
-	packageInfo extensionMethods 
+	packageInfo extensionMethods
 		ifNotEmpty: [self fileOutExtensions: packageInfo extensionMethods].
 	! !
 
@@ -83,7 +83,7 @@ fileOutPackage
 writeSourceCodeFrom: aStream to: aFile
 	"This writes the source code and adds to files"
 	| converter f fileName |
-	aStream contents isAsciiString 
+	aStream contents isAsciiString
 		ifTrue: [converter := MacRomanTextConverter new]
 		ifFalse: [converter := UTF8TextConverter new].
 	fileName := aFile, (FileDirectory dot, FileStream st).
