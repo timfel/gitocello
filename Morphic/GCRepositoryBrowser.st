@@ -7,7 +7,7 @@ SystemWindow subclass: #GCRepositoryBrowser
 !GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 4/26/2010 22:23'!
 classList
 
-	
+
 	classList ifNil: [
 		classList := GCRegistry repositories
 			ifEmpty: [#()]
@@ -27,7 +27,7 @@ contents
 
 !GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 6/14/2010 16:03'!
 createWindow
-	
+
 	| packageList classList repositoryUrlEntry fileOutCommand |
 	(fileOutCommand := PluggableButtonMorph
 		on: self
@@ -46,9 +46,9 @@ createWindow
 		selected: #repositoryIndex changeSelected: #repositoryIndex:
 		menu: #memberMenu:shifted: keystroke: nil.
 	(classList := PluggableListMorphOfMany new)
-		on: self list: #classList 
+		on: self list: #classList
 		primarySelection: #selectedClassIndex changePrimarySelection: #selectedClassIndex:
-		listSelection: #selectedClassesAt: changeListSelection: #selectedClassesAt:put: 
+		listSelection: #selectedClassesAt: changeListSelection: #selectedClassesAt:put:
 		menu: #classMenu keystroke: nil.
 	repositoryUrlEntry color: self defaultBackgroundColor.
 	classList color: self defaultBackgroundColor.
@@ -69,7 +69,7 @@ fileOut
 initialize
 
 	super initialize.
-	self 
+	self
 		repositoryIndex: 1;
 		selectedClassIndex: 1;
 		selectedClasses: self classListMap! !
@@ -88,7 +88,7 @@ selectedClassesAt: anIndex
 selectedClassesAt: anIndex put: aValue
 
 	selectedClasses at: anIndex put: (aValue = true).
-	self 
+	self
 		changed: #selectedClassIndex;
 		updatePackageClasses! !
 
@@ -111,8 +111,8 @@ fileOutButtonString
 
 !GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 4/26/2010 22:22'!
 packageClasses
-	
-	^ GCRegistry repositories 
+
+	^ GCRegistry repositories
 		ifEmpty: [#()]
 		ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses].! !
 
@@ -179,6 +179,6 @@ GCRepositoryBrowser class
 !GCRepositoryBrowser class methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 15:18'!
 open
 
-	(self new) 
-		createWindow; 
+	(self new)
+		createWindow;
 		openInWorld! !

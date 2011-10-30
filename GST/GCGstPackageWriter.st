@@ -14,7 +14,7 @@ classFilePathFor: aClass
 	"Find the path to the classes fileOut"
 	| subfolder |
 	subfolder := (aClass theNonMetaClass category asString findBetweenSubStrs: '-') last.
-	^ subfolder, FileDirectory pathNameDelimiter asString, 
+	^ subfolder, FileDirectory pathNameDelimiter asString,
 		aClass name asString, FileDirectory dot, FileStream st! !
 
 !GCGstPackageWriter methodsFor: 'stream-writing' stamp: 'tfel 9/20/2009 13:07'!
@@ -26,7 +26,7 @@ classes
 createPackageXml
 
 	self packageXmlStream reset.
-	self 
+	self
 		preamble;
 		requires;
 		tests;
@@ -42,16 +42,16 @@ fileIn: aClass
 !GCGstPackageWriter methodsFor: 'stream-writing' stamp: 'tfel 9/10/2009 14:17'!
 fileIns
 
-	self classes 
+	self classes
 		reject: [:class | class allSuperclasses includes: TestCase]
 		thenDo: [:class | self fileIn: class]! !
 
 !GCGstPackageWriter methodsFor: 'stream-writing' stamp: 'tfel 9/10/2009 14:15'!
 files
 
-	self classes do: [:class | 
-		self 
-			putAttribute: 'file' 
+	self classes do: [:class |
+		self
+			putAttribute: 'file'
 			with: (self classFilePathFor: class)
 	]! !
 
@@ -61,7 +61,7 @@ preamble
 	{'<package>' . '<!!-- THIS FILE IS GENERATED!! EDITS _WILL_ BE LOST ON UPDATE!! -->'. ''}
 		do: [:s | self packageXmlStream nextPutAll: s]
 		separatedBy: [self packageXmlStream nextPut: newline].
-	self 
+	self
 		putAttribute: 'name' with: self packageName;
 		putAttribute: 'namespace' with: self packageName.! !
 
@@ -108,7 +108,7 @@ fileOutPackageXml
 	| fileName converter file |
 	self class writePackageXml ifTrue: [
 		self createPackageXml.
-		self packageXmlStream contents isAsciiString 
+		self packageXmlStream contents isAsciiString
 			ifTrue: [converter := MacRomanTextConverter new]
 			ifFalse: [converter := UTF8TextConverter new].
 		fileName := self repoDir, FileDirectory pathNameDelimiter asString, 'package.xml'.
