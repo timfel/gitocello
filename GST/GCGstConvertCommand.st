@@ -32,18 +32,18 @@ basicConvert: aFilepath from: input to: output
 	GCCallout callout: stream contents.
 	filename := FileDirectory localNameFor: aFilepath.
 			FileDirectory deleteFilePath: aFilepath.
-			(FileDirectory forFileName: aFilepath) 
+			(FileDirectory forFileName: aFilepath)
 				rename: filename, '.converted' toBe: filename.! !
 
 !GCGstConvertCommand class methodsFor: 'callouts' stamp: 'tfel 6/14/2010 17:18'!
 flip: aString with: anotherString on: aFilepath
 
 	| filename |
-	(GCCallout callout: 'tr ', aString, ' ', anotherString, ' < "', aFilepath, 
+	(GCCallout callout: 'tr ', aString, ' ', anotherString, ' < "', aFilepath,
 		'" > "', aFilepath, '.converted"') = 0 ifTrue: [
 			filename := FileDirectory localNameFor: aFilepath.
 			FileDirectory deleteFilePath: aFilepath.
-			(FileDirectory forFileName: aFilepath) 
+			(FileDirectory forFileName: aFilepath)
 				rename: filename, '.converted' toBe: filename].! !
 
 
@@ -101,8 +101,8 @@ gstBidirectional
 	"Reverse all bidirectional rules to apply them for squeak -> gst conversion"
 	^ (self allMethodsIn: 'bidirectional-rules')
 		inject: OrderedCollection new
-		into: [:list :method | 
-			list union: ((self perform: method) 
+		into: [:list :method |
+			list union: ((self perform: method)
 						collect: [:each | each value -> each key])]! !
 
 
@@ -191,9 +191,9 @@ squeakStatements
 writeRules: someRules to: aStream
 
 	someRules do: [:each |
-		aStream 
+		aStream
 			nextPutAll: '-r';
 			nextPut: $';
-			nextPutAll: (each printString copyWithout: $'); 
+			nextPutAll: (each printString copyWithout: $');
 			nextPut: $';
 			nextPut: Character space]! !
