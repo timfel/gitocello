@@ -90,28 +90,6 @@ selectedRepository
 	^ self repositoryList at: self repositoryIndex! !
 
 
-!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 9/20/2009 15:04'!
-classListMap
-
-	^ self classList
-		collect: [:class | self packageClasses includes: class]! !
-
-!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:21'!
-initialize
-
-	super initialize.
-	self 
-		repositoryIndex: 1;
-		selectedClassIndex: 1;
-		selectedClasses: self classListMap! !
-
-!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:22'!
-packageClasses
-	
-	^ GCRegistry repositories 
-		ifEmpty: [#()]
-		ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses].! !
-
 
 !GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:13'!
 buildClassListWith: builder
@@ -166,6 +144,29 @@ buildWith: builder
 	windowSpec label: self windowLabel.
 	^ builder build: windowSpec
 ! !
+
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 9/20/2009 15:04'!
+classListMap
+
+	^ self classList
+		collect: [:class | self packageClasses includes: class]! !
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:21'!
+initialize
+
+	super initialize.
+	self 
+		repositoryIndex: 1;
+		selectedClassIndex: 1;
+		selectedClasses: self classListMap! !
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:22'!
+packageClasses
+	
+	^ GCRegistry repositories 
+		ifEmpty: [#()]
+		ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses].! !
 
 
 !GCRepositoryBrowser methodsFor: 'actions' stamp: 'tfel 6/14/2010 16:08'!

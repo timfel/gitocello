@@ -79,14 +79,14 @@ fileOutPackage
 		ifNotEmpty: [self fileOutExtensions: packageInfo extensionMethods].
 	! !
 
-!GCMapper methodsFor: 'fileOut' stamp: 'mh 5/12/2010 15:57'!
+!GCMapper methodsFor: 'fileOut' stamp: 'tfel 1/8/2012 14:52'!
 writeSourceCodeFrom: aStream to: aFile
 	"This writes the source code and adds to files"
 	| converter f fileName |
 	aStream contents isAsciiString 
 		ifTrue: [converter := MacRomanTextConverter new]
 		ifFalse: [converter := UTF8TextConverter new].
-	fileName := aFile, (FileDirectory dot, FileStream st).
+	fileName := aFile, (FileDirectory dot, 'st').
 	f := MultiByteFileStream new open: fileName forWrite: true.
 	f ifNil: [^ self error: 'Cannot open file'].
 	f lineEndConvention: #lf.
@@ -148,3 +148,4 @@ newFor: aPackage
 		packageName: aPackage;
 		initialize;
 		yourself! !
+self! !

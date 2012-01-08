@@ -23,14 +23,14 @@ repositories
 	^ Repositories! !
 
 
-!GCRegistry methodsFor: 'commands' stamp: 'tfel 6/7/2011 15:08:37.292'!
+!GCRegistry methodsFor: 'commands' stamp: 'tfel 1/8/2012 14:56'!
 commit: aPackage
 	"This is part of the class interface - try not to break it"
 	| lastCommit ancestors wc |
 	lastCommit := (GCRegistry at: aPackage) lastCommit.
 	wc := (MCPackage named: aPackage) workingCopy.
-	lastCommit ifNil: [lastCommit := (ListChooser
-				chooseItemFrom: wc ancestry breadthFirstAncestors
+	lastCommit ifNil: [lastCommit := (UIManager default
+				chooseFrom: wc ancestry breadthFirstAncestors
 				title: 'Please choose how far back you want to load and commit packages for import')].
 	lastCommit ifNil: [^ self].
 	ancestors := (wc ancestry allAncestorsOnPathTo: lastCommit) reverse.
