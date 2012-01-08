@@ -1,11 +1,9 @@
 === What this is
 This is my simple attempt at an interoperability tool between Git
-and Monticello. It is specifically tailored at inter operating
-between GNU Smalltalk and Squeak/Pharo (as those are the only
-Smalltalks I know of which use one of these two version control
-systems). However, I try to keep the code specific to either
-Smalltalk fairly separate, so the code might be pretty easily
-adaptable to other uses. I just didn't see any.
+and Monticello. It was originally used for developing packages on both
+GNU Smalltalk and Squeak/Pharo. However, turns out I (and some of my students)
+mostly use it to have a copy of Squeak code in Git, so we can use Github/Trac/Redmine
+for project management.
 
 ==== The Squeak Code
 The project is "self-hosting" and has been almost right-away.
@@ -32,11 +30,11 @@ Monticello package is created in the default Mcz location
 (which would be ../../ from the repository root, this is
 'configurable' in the hook).
 
-   This remote repository has to be created by hand for now, and
+This remote repository has to be created by hand for now, and
 the hook has to be enabled manually: I will automate this as soon
 as I find the time.
 
-   For development in the Squeak image, one can yellow-click the package
+For development in the Squeak image, one can yellow-click the package
 in the Monticello browser and check "track with Git" to commit to the
 default Git repository with each Monticello commit (per default under
 package-cache/git-repositories/PACKAGE). For now, you have to
@@ -44,16 +42,17 @@ manually add the origin and push to it from time to time. This will
 all be automated. Automatic conversion to Gnu Smalltalk syntax is
 already in place, however.
 
-   Development from GNU Smalltalk is difficult right now: There is a script in
+Development from GNU Smalltalk is difficult right now: There is a script in
 git-hooks that will create a Monticello package from the current code using
 the conversion rules defined in the Gitocello package on gst-convert.
-   The conversion to Squeak using gst-convert needs some more testing though:
+
+The conversion to Squeak using gst-convert needs some more testing though:
 at least on my setup it ignores conversion rules in that direction. This might
 not be all so bad, if one does an initial load of the package into a Squeak
 environment, changes the necessary bits of code and uses the Monticello merge
 for subsequent generated packages most conversion will be merged in just fine.
 
-   Also, gst-convert will never obsolete portable code anyway. Paolo Bonzini
+Also, gst-convert will never obsolete portable code anyway. Paolo Bonzini
 helped me a lot with lightning fast reactions to my bug-reports on gst-convert,
 and I think right now it will work just fine for the purposes of this project.
 
