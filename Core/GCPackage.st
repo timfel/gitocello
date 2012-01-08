@@ -6,7 +6,7 @@ Object subclass: #GCPackage
 
 !GCPackage methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:31'!
 classes
-	"This converts, then sorts the class names, then finds the classes. Expensive, but run basically
+	"This converts, then sorts the class names, then finds the classes. Expensive, but run basically 
 	only on intialization of the package and for the browser, which is slow anyway"
 	| packageInfo |
 	packageInfo := (PackageInfo named: self packageName).

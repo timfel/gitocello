@@ -1,12 +1,11 @@
-SystemWindow subclass: #GCRepositoryBrowser
+StringHolder subclass: #GCRepositoryBrowser
 	instanceVariableNames: 'repositoryIndex selectedClassIndex classList selectedClasses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Gitocello-Morphic'!
 
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 4/26/2010 22:23'!
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 1/8/2012 11:21'!
 classList
-
 
 	classList ifNil: [
 		classList := GCRegistry repositories
@@ -14,107 +13,11 @@ classList
 			ifNotEmpty: [(GCRegistry at: self selectedRepository) classes]].
 	^ classList! !
 
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 15:04'!
-classListMap
-
-	^ self classList
-		collect: [:class | self packageClasses includes: class]! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 14:08'!
-contents
-
-	^ self selectedRepository! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 6/14/2010 16:03'!
-createWindow
-
-	| packageList classList repositoryUrlEntry fileOutCommand |
-	(fileOutCommand := PluggableButtonMorph
-		on: self
-		getState: nil
-		action: #fileOut
-		label: #fileOutButtonString).
-	repositoryUrlEntry := (PluggableTextMorph on: self
-		text: #repositoryRoot
-		accept: #repositoryRoot:
-		readSelection: nil
-		menu: #annotationPaneMenu:shifted:)
-		hideScrollBarsIndefinitely;
-		yourself.
-	(packageList := PluggableListMorph new)
-		on: self list: #repositoryList
-		selected: #repositoryIndex changeSelected: #repositoryIndex:
-		menu: #memberMenu:shifted: keystroke: nil.
-	(classList := PluggableListMorphOfMany new)
-		on: self list: #classList
-		primarySelection: #selectedClassIndex changePrimarySelection: #selectedClassIndex:
-		listSelection: #selectedClassesAt: changeListSelection: #selectedClassesAt:put:
-		menu: #classMenu keystroke: nil.
-	repositoryUrlEntry color: self defaultBackgroundColor.
-	classList color: self defaultBackgroundColor.
-	packageList color: self defaultBackgroundColor.
-	self addMorph: repositoryUrlEntry frame: (0@0.01 corner: 0.8@0.1).
-	self addMorph: fileOutCommand frame: (0.8@0.01 corner: 1.0@0.1).
-	self addMorph: packageList frame: (0@0.1 corner: 0.5@1.0).
-	self addMorph: classList frame: (0.5@0.1 corner: 1.0@1.0).
-
-	self setLabel: 'Package Git Repository Mirrors'! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 6/14/2010 16:08'!
-fileOut
-
-	GCRegistry createFilesFor: self selectedRepository.! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 4/26/2010 22:21'!
-initialize
-
-	super initialize.
-	self
-		repositoryIndex: 1;
-		selectedClassIndex: 1;
-		selectedClasses: self classListMap! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 14:03'!
-repositoryList
-
-	^ GCRegistry repositories keys asOrderedCollection! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 14:58'!
-selectedClassesAt: anIndex
-
-	^ selectedClasses at: anIndex! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 15:16'!
-selectedClassesAt: anIndex put: aValue
-
-	selectedClasses at: anIndex put: (aValue = true).
-	self
-		changed: #selectedClassIndex;
-		updatePackageClasses! !
-
-!GCRepositoryBrowser methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 14:10'!
-selectedRepository
-
-	^ self repositoryList at: self repositoryIndex! !
-
-
 !GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 15:02'!
 classList: anObject
 	"Set the value of classList"
 
 	classList := anObject! !
-
-!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 6/14/2010 15:58'!
-fileOutButtonString
-
-	^ 'Sync repository'! !
-
-!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 4/26/2010 22:22'!
-packageClasses
-
-	^ GCRegistry repositories
-		ifEmpty: [#()]
-		ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses].! !
 
 !GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:01'!
 repositoryIndex
@@ -129,15 +32,20 @@ repositoryIndex: anObject
 	repositoryIndex := anObject.
 	classList := nil! !
 
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:03'!
+repositoryList
+
+	^ GCRegistry repositories keys asOrderedCollection! !
+
 !GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 10/2/2009 21:35'!
 repositoryRoot
 
 	^ GCRegistry repositoryRoot pathName! !
 
-!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 10/2/2009 21:34'!
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 1/8/2012 11:20'!
 repositoryRoot: aString
 
-	^ GCRegistry repositoryRoot: aString! !
+	^ [GCRegistry repositoryRoot: aString. true] on: Error do: [false]! !
 
 !GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:51'!
 selectedClassIndex
@@ -163,7 +71,109 @@ selectedClasses: anObject
 
 	selectedClasses := anObject! !
 
-!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 15:15'!
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:58'!
+selectedClassesAt: anIndex
+
+	^ selectedClasses at: anIndex! !
+
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 15:16'!
+selectedClassesAt: anIndex put: aValue
+
+	selectedClasses at: anIndex put: (aValue = true).
+	self 
+		changed: #selectedClassIndex;
+		updatePackageClasses! !
+
+!GCRepositoryBrowser methodsFor: 'accessing' stamp: 'tfel 9/20/2009 14:10'!
+selectedRepository
+
+	^ self repositoryList at: self repositoryIndex! !
+
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 9/20/2009 15:04'!
+classListMap
+
+	^ self classList
+		collect: [:class | self packageClasses includes: class]! !
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:21'!
+initialize
+
+	super initialize.
+	self 
+		repositoryIndex: 1;
+		selectedClassIndex: 1;
+		selectedClasses: self classListMap! !
+
+!GCRepositoryBrowser methodsFor: 'initialization' stamp: 'tfel 4/26/2010 22:22'!
+packageClasses
+	
+	^ GCRegistry repositories 
+		ifEmpty: [#()]
+		ifNotEmpty: [(GCRegistry at: self selectedRepository) packageClasses].! !
+
+
+!GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:13'!
+buildClassListWith: builder
+
+	^ builder pluggableMultiSelectionListSpec new
+		model: self;
+		list: #classList; 
+		getIndex: #selectedClassIndex; 
+		setIndex: #selectedClassIndex:;
+		getSelectionList: #selectedClassesAt:;
+		setSelectionList: #selectedClassesAt:put:;
+		yourself! !
+
+!GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:12'!
+buildRepositoryListWith: builder
+
+	^ builder pluggableListSpec new
+		model: self;
+		list: #repositoryList; 
+		getIndex: #repositoryIndex; 
+		setIndex: #repositoryIndex:;
+		yourself! !
+
+!GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:12'!
+buildRepositoryPathButtonWith: builder
+
+	^ builder pluggableButtonSpec new
+		model: self;
+		label: self fileOutButtonString;
+		action: #fileOut;
+		yourself
+! !
+
+!GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:20'!
+buildRepositoryPathPaneWith: builder
+
+	^ builder pluggableInputFieldSpec new
+		model: self;
+		getText: #repositoryRoot; 
+		setText: #repositoryRoot:;
+		yourself
+! !
+
+!GCRepositoryBrowser methodsFor: 'toolbuilder' stamp: 'tfel 1/8/2012 11:24'!
+buildWith: builder
+	| windowSpec |
+	windowSpec := self buildWindowWith: builder specs: {
+		(0@0 corner: 0.8@0.1) -> [self buildRepositoryPathPaneWith: builder].
+		(0.8@0 corner: 1@0.1) -> [self buildRepositoryPathButtonWith: builder].
+		(0@0.1 corner: 0.5@1) -> [self buildRepositoryListWith: builder].
+		(0.5@0.1 corner: 1@1) -> [self buildClassListWith: builder] }.
+	windowSpec label: self windowLabel.
+	^ builder build: windowSpec
+! !
+
+
+!GCRepositoryBrowser methodsFor: 'actions' stamp: 'tfel 6/14/2010 16:08'!
+fileOut
+
+	GCRegistry createFilesFor: self selectedRepository.! !
+
+!GCRepositoryBrowser methodsFor: 'actions' stamp: 'tfel 9/20/2009 15:15'!
 updatePackageClasses
 
 	(GCRegistry at: self selectedRepository)
@@ -171,14 +181,26 @@ updatePackageClasses
 			select: [:class |
 				self selectedClasses at: (self classList indexOf: class)])! !
 
+
+!GCRepositoryBrowser methodsFor: 'constants' stamp: 'tfel 6/14/2010 15:58'!
+fileOutButtonString
+
+	^ 'Sync repository'! !
+
+!GCRepositoryBrowser methodsFor: 'constants' stamp: 'tfel 1/8/2012 11:24'!
+windowLabel
+
+	^ 'Package Git Repository Mirrors'! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 GCRepositoryBrowser class
 	instanceVariableNames: ''!
 
-!GCRepositoryBrowser class methodsFor: 'as yet unclassified' stamp: 'tfel 9/20/2009 15:18'!
+!GCRepositoryBrowser class methodsFor: 'instance creation' stamp: 'tfel 1/8/2012 11:16'!
 open
-
-	(self new)
-		createWindow;
-		openInWorld! !
+	| browser |
+	browser := self new.
+	(browser buildWith: ToolBuilder default) openInWorld.
+	^ browser
+! !

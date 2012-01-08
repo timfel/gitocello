@@ -23,9 +23,9 @@ apiLinuxLibc6Callout: aCommand
 apiMacOSXCallout: aCommand
 	<cdecl: long 'system' (char*) module: 'libSystem.dylib'>
 	| errCode |
-	errCode := ExternalFunction getLastError.
+	errCode := ExternalFunction getLastError. 
 	^ errCode = 13 "Unable to find function address. dylibs are not searched"
-		ifTrue: [self error: 'Cannot call libSystem.dylib.
+		ifTrue: [self error: 'Cannot call libSystem.dylib. 
 			Please set "SqueakPluginsBuiltInOrLocalOnly" in your VM''s Info.plist to false']
 		ifFalse: [self externalCallFailed]! !
 
@@ -38,9 +38,9 @@ apiWindowsCallout: aCommand
 callout: aCommand
 
 	^ (Smalltalk classNamed: 'OSProcess')
-		ifNil: [(self calloutDict
+		ifNil: [(self calloutDict 
 				at: SmalltalkImage current platformName asLowercase
-				ifAbsent: [[:cmd | self error: 'Callouts not implemented for your platform!!']])
+				ifAbsent: [[:cmd | self error: 'Callouts not implemented for your platform!!']]) 
 					value: aCommand]
 		ifNotNilDo: [:class | class waitForCommand: aCommand].! !
 
@@ -57,7 +57,7 @@ calloutDict
 !GCCallout class methodsFor: 'callout' stamp: 'tfel 6/14/2010 15:36'!
 linuxCallout: aCommand
 	"Try with new libc6 and older libc5"
-	[self apiLinuxLibc6Callout: aCommand]
+	[self apiLinuxLibc6Callout: aCommand] 
 		on: Error
 		do: [self apiLinuxLibc5Callout: aCommand]! !
 
@@ -65,7 +65,7 @@ linuxCallout: aCommand
 windowsCallout: aCommand
 	"Escape newlines for Windows CmdLine"
 	| escapedCommand |
-	escapedCommand := ((aCommand
-		copyReplaceAll: Character cr asString with: ' ')
+	escapedCommand := ((aCommand 
+		copyReplaceAll: Character cr asString with: ' ') 
 			copyReplaceAll: Character lf asString with: ' ').
 	self apiWindowsCallout: escapedCommand.! !
