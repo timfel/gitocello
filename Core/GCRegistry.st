@@ -212,11 +212,11 @@ new
 		ifNil: [instance := super new]
 		ifNotNil: [instance]! !
 
-!GCRegistry class methodsFor: 'class initialization' stamp: 'mh 5/10/2010 15:28'!
+!GCRegistry class methodsFor: 'class initialization' stamp: 'tfel 1/8/2012 15:09'!
 startUp
 
-	self 
-		repositoryRoot: 'package-cache', FileDirectory slash, 'git-repositories'.
+	(self repositoryRoot isNil or: [self repositoryRoot exists not]) ifTrue: [
+		self repositoryRoot: 'package-cache', FileDirectory slash, 'git-repositories'].
 	(self repositories keys copy do: [:each |
 			(self repositoryRoot directoryNames includes: each)
 				ifFalse: [Repositories removeKey: each]]).! !
