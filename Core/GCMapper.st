@@ -87,6 +87,8 @@ writeSourceCodeFrom: aStream to: aFile
 		ifTrue: [converter := MacRomanTextConverter new]
 		ifFalse: [converter := UTF8TextConverter new].
 	fileName := aFile, (FileDirectory dot, 'st').
+	"If the new version of the file is shorter than the current version, deleting the file means we won't leave trailing rubbish from the old version."
+	FileDirectory deleteFilePath: fileName.
 	f := MultiByteFileStream new open: fileName forWrite: true.
 	f ifNil: [^ self error: 'Cannot open file'].
 	f lineEndConvention: #lf.
